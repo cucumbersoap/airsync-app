@@ -224,7 +224,7 @@ function toast(text) {
   toastTimer = setTimeout(() => $("toast").classList.remove("show"), 2400);
 }
 // 연결 설정 (8단계에서 휴대폰에 저장되게 바꿈)
-let settings = { url: "wss://broker.hivemq.com:8884/mqtt", base: "airsync/home1", user: "", pass: "" };
+let settings = { url: "wss://broker.hivemq.com:8884/mqtt", base: "airsync/cucumbersoap", user: "", pass: "" };
 let client = null;
 
 function setPill(state, text) {
