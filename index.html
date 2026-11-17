@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Air-Sync</title>
+  <!-- 9단계: 휴대폰 홈 화면에 앱처럼 추가 -->
+  <meta name="theme-color" content="#0f7666">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Air-Sync">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Sora:wght@600;700&display=swap">
+  <style>
+    /* 1) 색 변수: 밝은 화면 */
+:root{
+  --bg:#edf2f1; --surface:#fff; --sunk:#f4f7f6; --ink:#13201d; --muted:#5a6a66; --line:#d6e0dd;
+  --accent:#0f7666; --accent-ink:#fff;
+  --good:#1f73d6; --ok:#169c55; --bad:#d98200; --vbad:#d32f3a; --none:#8b9794;  /* 미세먼지 등급 색 */
+}
+/* 2) 휴대폰이 다크 모드일 때 변수 값만 바꿈 */
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0f1514; --surface:#18201f; --sunk:#121918; --ink:#e3ebe9; --muted:#97a7a3; --line:#2a3533;
+         --accent:#36c2a8; --accent-ink:#06211c; --good:#5aa2ff; --ok:#3fcf82; --bad:#f2a531; --vbad:#ff5f68; }
+}
+
+/* 3) 기본 */
+*{ box-sizing:border-box }
+[hidden]{ display:none !important }
+body{ margin:0; background:var(--bg); color:var(--ink);
+      font-family:"Noto Sans KR", system-ui, sans-serif; font-size:15px; }
+.app{ max-width:520px; margin:0 auto; padding:12px 16px 96px; display:grid; gap:14px; }
+.view{ display:grid; gap:14px; }
+
+/* 4) 상태바와 연결 표시 */
+.top{ display:flex; justify-content:space-between; align-items:center; }
+.brand{ font-family:"Sora", sans-serif; font-weight:700; font-size:20px; }
+.pill{ display:inline-flex; align-items:center; gap:6px; font-size:12.5px; padding:5px 10px;
+       border-radius:999px; background:var(--surface); border:1px solid var(--line); }
+.pill i{ width:8px; height:8px; border-radius:50%; background:var(--none); }
+.pill[data-s="on"] i{ background:var(--ok) }    .pill[data-s="try"] i{ background:var(--bad) }
+.pill[data-s="off"] i{ background:var(--vbad) } .pill[data-s="demo"] i{ background:var(--good) }
+
+/* 5) 카드 */
+.card{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px; display:grid; gap:12px; }
+.card h2{ margin:0; font-size:13px; font-weight:500; color:var(--muted); display:flex; justify-content:space-between; }
+.banner{ border-radius:12px; padding:12px 14px; background:var(--sunk); border:1px solid var(--line); }
+.pos{ font-size:26px; font-weight:700; margin:0; }
+.reason{ color:var(--muted); margin:0; }
+
+/* 6) 버튼 */
+.seg, .btns{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.btns{ grid-template-columns:1fr auto 1fr; }
+.btn, .seg button{ font:inherit; font-weight:700; min-height:48px; border-radius:12px;
+       border:1px solid var(--line); background:var(--surface); color:var(--ink); }
+.btn.primary{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+.seg button[aria-pressed="true"]{ background:var(--accent); color:var(--accent-ink); }
+button:disabled{ opacity:.45; }
+
+/* 7) 실내·실외 카드 */
+.pair{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.big b{ font-family:"Sora", sans-serif; font-size:38px; font-weight:600; }
+.big span, .foot{ font-size:12px; color:var(--muted); }
+.chip{ font-size:12px; font-weight:700; padding:3px 9px; border-radius:999px; color:#fff; background:var(--none); }
+.chip[data-g="good"]{ background:var(--good) } .chip[data-g="ok"]{ background:var(--ok) }
+.chip[data-g="bad"]{ background:var(--bad) }   .chip[data-g="vbad"]{ background:var(--vbad) }
+dl{ margin:0; display:grid; grid-template-columns:auto 1fr; gap:4px 10px; }
+dt{ color:var(--muted) } dd{ margin:0; text-align:right; }
+.chart{ width:100%; height:150px; }
+
+/* 8) 입력칸, 기록 */
+label{ display:grid; gap:4px; font-size:14px; }
+input[type=number], input[type=text], input[type=url], input[type=password]{
+  font:inherit; font-size:16px; padding:11px 12px; border-radius:10px;
+  border:1px solid var(--line); background:var(--sunk); color:var(--ink); }
+.log{ font-size:11.5px; max-height:220px; overflow:auto; white-space:pre-wrap; color:var(--muted); }
+
+/* 9) 아래 고정 탭바와 알림 */
+.tabs{ position:fixed; left:0; right:0; bottom:0; display:grid; grid-template-columns:repeat(3,1fr);
+       background:var(--surface); border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom); }
+.tab{ border:0; background:none; color:var(--muted); font:inherit; padding:14px 4px; }
+.tab[aria-current="page"]{ color:var(--accent); font-weight:700; }
+.toast{ position:fixed; left:50%; bottom:90px; transform:translateX(-50%); background:var(--ink); color:var(--bg);
+        padding:10px 16px; border-radius:999px; opacity:0; transition:opacity .25s; pointer-events:none; }
+.toast.show{ opacity:1 }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- 상태바 -->
+  <header class="top">
+    <div class="brand">Air-Sync</div>
+    <span class="pill" id="connPill" data-s="off"><i></i><span id="connText">연결 안 됨</span></span>
+  </header>
+
+  <!-- 화면 1: 홈 -->
+  <main id="view-home" class="view">
+    <div class="banner rain" id="rainBanner" hidden>실외에서 비가 감지되어 창문을 닫습니다.</div>
+    <div class="banner" id="connBanner" hidden>
+      <span id="connBannerText">브로커에 연결되지 않았습니다.</span>
+      <button class="btn" id="demoBtn" type="button">데모로 보기</button>
+    </div>
+
+    <section class="card">
+      <h2>창문</h2>
+      <p class="pos" id="posText">상태 모름</p>
+      <p class="reason" id="reasonText">창문 유닛의 응답을 기다리는 중</p>
+      <div class="seg">
+        <button type="button" id="modeAuto">자동</button>
+        <button type="button" id="modeManual">수동</button>
+      </div>
+      <div class="btns">
+        <button type="button" class="btn primary" id="btnOpen">열기</button>
+        <button type="button" class="btn" id="btnStop">정지</button>
+        <button type="button" class="btn" id="btnClose">닫기</button>
+      </div>
+    </section>
+
+    <section class="card"><p id="compareText">실내와 실외 값을 받으면 비교해 드립니다.</p></section>
+
+    <div class="pair">
+      <section class="card">
+        <h2>실내 <span class="chip" id="inGrade">-</span></h2>
+        <div class="big"><b id="inPm25">--</b><span>PM2.5 µg/m³</span></div>
+        <dl>
+          <dt>PM10</dt><dd id="inPm10">--</dd>
+          <dt>온도</dt><dd id="inTemp">--</dd>
+          <dt>습도</dt><dd id="inHum">--</dd>
+          <dt>VOC 지수</dt><dd id="inVoc">--</dd>
+        </dl>
+        <div class="foot" id="inAge">기다리는 중</div>
+      </section>
+      <section class="card">
+        <h2>실외 <span class="chip" id="outGrade">-</span></h2>
+        <div class="big"><b id="outPm25">--</b><span>PM2.5 µg/m³</span></div>
+        <dl>
+          <dt>PM10</dt><dd id="outPm10">--</dd>
+          <dt>온도</dt><dd id="outTemp">--</dd>
+          <dt>습도</dt><dd id="outHum">--</dd>
+          <dt>비</dt><dd id="outRain">--</dd>
+        </dl>
+        <div class="foot" id="outAge">기다리는 중</div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>PM2.5 흐름 (30분)</h2>
+      <svg class="chart" id="chart" viewBox="0 0 320 150" preserveAspectRatio="none"></svg>
+    </section>
+  </main>
+
+  <!-- 화면 2: 자동 규칙 -->
+  <main id="view-rules" class="view" hidden>
+    <section class="card">
+      <h2>자동 규칙</h2>
+      <label>실외 PM2.5가 이보다 나쁘면 닫기 <input type="number" id="c-outPm25Max"></label>
+      <label>실내가 실외보다 이만큼 탁하면 열기 <input type="number" id="c-pmDiffOpen"></label>
+      <label>차이가 이만큼 줄면 닫기 <input type="number" id="c-pmDiffClose"></label>
+      <label>VOC 지수가 이 이상이면 열기 <input type="number" id="c-vocOpen"></label>
+      <label>VOC 지수가 이 이하이면 닫기 <input type="number" id="c-vocClose"></label>
+      <label>실외 최저 온도 <input type="number" id="c-tempMin"></label>
+      <label>실외 최고 온도 <input type="number" id="c-tempMax"></label>
+      <label>최소 대기 시간(초) <input type="number" id="c-minIntervalSec"></label>
+      <label><input type="checkbox" id="c-rainCloseInManual"> 수동 모드에서도 비가 오면 닫기</label>
+      <button type="button" class="btn primary" id="cfgSave">보드에 저장</button>
+    </section>
+  </main>
+
+  <!-- 화면 3: 연결 -->
+  <main id="view-conn" class="view" hidden>
+    <section class="card">
+      <h2>브로커 연결</h2>
+      <label>브로커 주소 <input type="url" id="s-url"></label>
+      <label>토픽 앞부분 <input type="text" id="s-base"></label>
+      <label>아이디 <input type="text" id="s-user"></label>
+      <label>비밀번호 <input type="password" id="s-pass"></label>
+      <button type="button" class="btn primary" id="btnConnect">저장하고 연결</button>
+      <button type="button" class="btn" id="btnDemo">데모 모드</button>
+    </section>
+    <section class="card">
+      <h2>받은 메시지</h2>
+      <pre class="log" id="log">아직 없음</pre>
+    </section>
+  </main>
+</div>
+
+<!-- 탭바 -->
+<nav class="tabs">
+  <button class="tab" data-view="home" aria-current="page">홈</button>
+  <button class="tab" data-view="rules">자동 규칙</button>
+  <button class="tab" data-view="conn">연결</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
+<script>
+  // id로 요소 찾기: $("inPm25") 는 id="inPm25" 인 요소
+const $ = id => document.getElementById(id);
+
+// 탭 전환: 고른 화면만 보이고 나머지는 숨김
+function go(view) {
+  ["home", "rules", "conn"].forEach(name => {
+    $("view-" + name).hidden = (name !== view);
+  });
+  document.querySelectorAll(".tab").forEach(tab => {
+    if (tab.dataset.view === view) tab.setAttribute("aria-current", "page");
+    else tab.removeAttribute("aria-current");
+  });
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.onclick = () => go(tab.dataset.view);
+});
+
+// 알림: 2.4초 동안 보였다가 사라짐
+let toastTimer;
+function toast(text) {
+  $("toast").textContent = text;
+  $("toast").classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $("toast").classList.remove("show"), 2400);
+}
+// 연결 설정 (8단계에서 휴대폰에 저장되게 바꿈)
+let settings = { url: "wss://broker.hivemq.com:8884/mqtt", base: "airsync/home1", user: "", pass: "" };
+let client = null;
+
+function setPill(state, text) {
+  $("connPill").dataset.s = state;      // CSS가 점 색을 바꿈
+  $("connText").textContent = text;
+}
+
+function connect() {
+  if (client) client.end(true);         // 이전 연결이 있으면 끊음
+  setPill("try", "연결 중…");
+  client = mqtt.connect(settings.url, {
+    clientId: "airsync-app-" + Math.random().toString(16).slice(2, 10),  // 접속마다 다른 이름
+    username: settings.user || undefined,
+    password: settings.pass || undefined,
+    reconnectPeriod: 5000,              // 끊기면 5초마다 다시 시도
+    connectTimeout: 8000
+  });
+
+  client.on("connect", () => {
+    setPill("on", "연결됨");
+    $("connBanner").hidden = true;
+    client.subscribe(settings.base + "/#", { qos: 1 });
+  });
+  client.on("reconnect", () => setPill("try", "다시 연결 중…"));
+  client.on("offline", () => setPill("off", "연결 끊김"));
+  client.on("error", err => {
+    setPill("off", "연결 오류");
+    $("connBannerText").textContent = "연결 오류: " + err.message;
+    $("connBanner").hidden = false;
+  });
+
+  // 메시지가 오면 "airsync/home1/indoor/data" → "indoor/data"로 자른 뒤 handle()에 넘김
+  client.on("message", (topic, payload) => {
+    const suffix = topic.slice(settings.base.length + 1);
+    handle(suffix, payload.toString());
+  });
+}
+
+// ===== 6단계: 데이터 저장과 화면 그리기 =====
+// 받은 값을 모아 두는 상자
+const S = { indoor: null, inTs: 0, outdoor: null, outTs: 0, win: null, mode: null, hist: [], log: [] };
+const STALE = 60 * 1000;   // 60초가 넘은 값은 "오래됨"
+
+function handle(suffix, text) {
+  addLog(suffix, text);
+  if (suffix.endsWith("/status")) return;              // online/offline 은 JSON이 아님
+  let d;
+  try { d = JSON.parse(text); } catch (e) { return; }  // JSON이 아니면 무시
+  if (suffix === "indoor/data")  { S.indoor = d;  S.inTs = Date.now();  pushHist(); }
+  if (suffix === "outdoor/data") { S.outdoor = d; S.outTs = Date.now(); pushHist(); }
+  if (suffix === "window/state") { S.win = d; if (d.mode) S.mode = d.mode; }
+  if (suffix === "window/mode")  { if (d.mode) S.mode = d.mode; }
+  if (suffix === "window/config") { Object.assign(S.cfg, d); fillCfg(); }
+  render();
+}
+
+// 연결 탭의 "받은 메시지" (최근 30개)
+function addLog(suffix, text) {
+  S.log.unshift(new Date().toTimeString().slice(0, 8) + "  " + suffix + "  " + text);
+  S.log.length = Math.min(S.log.length, 30);
+  $("log").textContent = S.log.join("\n");
+}
+
+// 그래프용 기록: 10초에 한 점, 30분치만 보관
+function pushHist() {
+  const now = Date.now(), last = S.hist[S.hist.length - 1];
+  const point = { t: now, i: S.indoor ? S.indoor.pm25 : null, o: S.outdoor ? S.outdoor.pm25 : null };
+  if (last && now - last.t < 10000) { last.i = point.i; last.o = point.o; }
+  else S.hist.push(point);
+  S.hist = S.hist.filter(h => now - h.t <= 30 * 60 * 1000);
+}
+
+// 미세먼지 등급 (환경부 기준)
+function gradePm25(v) { if (v == null) return null; return v <= 15 ? "good" : v <= 35 ? "ok" : v <= 75 ? "bad" : "vbad"; }
+function gradePm10(v) { if (v == null) return null; return v <= 30 ? "good" : v <= 80 ? "ok" : v <= 150 ? "bad" : "vbad"; }
+const GNAME = { good: "좋음", ok: "보통", bad: "나쁨", vbad: "매우나쁨" };
+const POS = { open: "열림", closed: "닫힘", opening: "여는 중", closing: "닫는 중",
+              middle: "중간에 멈춤", unknown: "위치 모름", error: "오류" };
+
+function fmt(v, digits, unit) { return v == null ? "--" : Number(v).toFixed(digits) + (unit || ""); }
+function ago(ts) { const s = Math.round((Date.now() - ts) / 1000); return s < 60 ? s + "초 전" : Math.floor(s / 60) + "분 전"; }
+function ageText(ts) {
+  if (!ts) return "기다리는 중";
+  return ago(ts) + (Date.now() - ts > STALE ? " · 값이 오래됨" : " 업데이트");
+}
+function showGrade(id, g) { $(id).textContent = g ? GNAME[g] : "-"; $(id).dataset.g = g || ""; }
+
+function render() {
+  const now = Date.now();
+
+  // 창문 카드
+  const w = S.win;
+  $("posText").textContent = w ? "창문 " + (POS[w.pos] || "위치 모름") : "상태 모름";
+  $("reasonText").textContent = w ? (w.reason || "") : "창문 유닛의 응답을 기다리는 중";
+  $("modeAuto").setAttribute("aria-pressed", S.mode === "auto");
+  $("modeManual").setAttribute("aria-pressed", S.mode === "manual");
+  const live = demo || (client && client.connected);   // 데모 모드에서도 버튼 사용
+  ["btnOpen", "btnStop", "btnClose", "modeAuto", "modeManual"].forEach(id => $(id).disabled = !live);
+
+  // 실내 카드
+  const i = S.indoor || {};
+  $("inPm25").textContent = fmt(i.pm25, 0);
+  showGrade("inGrade", gradePm25(i.pm25));
+  $("inPm10").textContent = fmt(i.pm10, 0);
+  $("inTemp").textContent = fmt(i.temp, 1, "°C");
+  $("inHum").textContent = fmt(i.hum, 0, "%");
+  $("inVoc").textContent = fmt(i.voc, 0);
+  $("inAge").textContent = ageText(S.inTs);
+
+  // 실외 카드
+  const o = S.outdoor || {};
+  $("outPm25").textContent = fmt(o.pm25, 0);
+  showGrade("outGrade", gradePm25(o.pm25));
+  $("outPm10").textContent = fmt(o.pm10, 0);
+  $("outTemp").textContent = fmt(o.temp, 1, "°C");
+  $("outHum").textContent = fmt(o.hum, 0, "%");
+  $("outRain").textContent = S.outdoor ? (o.rain ? "비 옴" : "안 옴") : "--";
+  $("outAge").textContent = ageText(S.outTs);
+  $("rainBanner").hidden = !(o.rain && now - S.outTs < STALE);
+
+  // 실내·실외 비교 한 줄
+  let msg = "실내와 실외 값을 받으면 비교해 드립니다.";
+  if (i.pm25 != null && o.pm25 != null) {
+    const diff = i.pm25 - o.pm25;
+    if (o.rain) msg = "비가 와서 환기하지 않습니다.";
+    else if (o.pm25 > 35) msg = "실외 미세먼지가 나빠서 창문을 닫아 두는 것이 좋습니다.";
+    else if (diff >= 10) msg = "실내 PM2.5가 실외보다 " + diff.toFixed(0) + " 높습니다. 환기하면 좋아요.";
+    else msg = "실내와 실외 공기가 비슷합니다 (차이 " + diff.toFixed(0) + ").";
+  }
+  $("compareText").textContent = msg;
+
+  drawChart();
+}
+
+setInterval(render, 1000);   // "3초 전" 같은 시간 글자를 1초마다 갱신 (첫 그리기도 1초 뒤)
+
+// ===== 7단계: 창문 조작과 자동 규칙 =====
+// 자동 규칙 기본값 (보드 window_types.h 와 같은 값)
+const CFG_DEFAULT = { outPm25Max: 35, pmDiffOpen: 10, pmDiffClose: 3, vocOpen: 200, vocClose: 120,
+                      tempMin: 5, tempMax: 32, minIntervalSec: 60, rainCloseInManual: true };
+S.cfg = Object.assign({}, CFG_DEFAULT);
+
+// 브로커에 보내기. retain=true 이면 브로커가 마지막 값을 기억해 둠
+function publish(suffix, obj, retain) {
+  if (demo) { demoCommand(suffix, obj); return true; }   // 8단계: 데모 모드면 브로커 대신 데모로
+  if (!client || !client.connected) { toast("브로커에 연결되어 있지 않습니다"); return false; }
+  client.publish(settings.base + "/" + suffix, JSON.stringify(obj), { qos: 1, retain: !!retain });
+  return true;
+}
+
+// 창문 버튼 (누르면 보드가 수동 모드로 바뀜)
+$("btnOpen").onclick  = () => { if (publish("window/cmd", { cmd: "open" }))  toast("열기 명령을 보냈습니다"); };
+$("btnClose").onclick = () => { if (publish("window/cmd", { cmd: "close" })) toast("닫기 명령을 보냈습니다"); };
+$("btnStop").onclick  = () => { if (publish("window/cmd", { cmd: "stop" }))  toast("정지 명령을 보냈습니다"); };
+
+// 자동/수동 (retain: 보드가 꺼졌다 켜져도 마지막 모드를 받음)
+$("modeAuto").onclick   = () => { if (publish("window/mode", { mode: "auto" }, true))   { S.mode = "auto";   render(); } };
+$("modeManual").onclick = () => { if (publish("window/mode", { mode: "manual" }, true)) { S.mode = "manual"; render(); } };
+
+// 자동 규칙 화면
+const CFG_KEYS = ["outPm25Max", "pmDiffOpen", "pmDiffClose", "vocOpen", "vocClose", "tempMin", "tempMax", "minIntervalSec"];
+function fillCfg() {
+  CFG_KEYS.forEach(k => $("c-" + k).value = S.cfg[k]);
+  $("c-rainCloseInManual").checked = S.cfg.rainCloseInManual;
+}
+fillCfg();
+
+$("cfgSave").onclick = () => {
+  const c = {};
+  for (const k of CFG_KEYS) {
+    const v = parseFloat($("c-" + k).value);
+    if (isNaN(v)) { toast("빈 칸이 있습니다. 숫자를 넣어 주세요"); $("c-" + k).focus(); return; }
+    c[k] = v;
+  }
+  if (c.tempMin >= c.tempMax)        { toast("최저 온도가 최고 온도보다 낮아야 합니다"); return; }
+  if (c.pmDiffClose >= c.pmDiffOpen) { toast("닫기 차이는 열기 차이보다 작아야 합니다"); return; }
+  c.minIntervalSec = Math.round(c.minIntervalSec);
+  c.rainCloseInManual = $("c-rainCloseInManual").checked;
+  if (publish("window/config", c, true)) { Object.assign(S.cfg, c); toast("보드에 저장했습니다"); }
+};
+
+// ===== 8단계: 설정 저장, 그래프, 데모 모드 =====
+// ① 연결 설정을 휴대폰에 저장
+function load(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch (e) { return fallback; }          // 저장소를 못 쓰는 브라우저(비공개 창)에서도 멈추지 않게
+}
+function save(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {} }
+
+settings = Object.assign(settings, load("airsync.settings", {}));   // 저장된 값이 있으면 덮어씌움
+$("s-url").value = settings.url;
+$("s-base").value = settings.base;
+$("s-user").value = settings.user;
+$("s-pass").value = settings.pass;
+
+$("btnConnect").onclick = () => {
+  const url = $("s-url").value.trim();
+  const base = $("s-base").value.trim().replace(/\/+$/, "");     // 끝의 / 는 지움
+  if (!/^wss?:\/\//.test(url)) { toast("주소는 wss:// 로 시작해야 합니다"); return; }
+  if (!base) { toast("토픽 앞부분을 넣어 주세요"); return; }
+  settings = { url, base, user: $("s-user").value.trim(), pass: $("s-pass").value };
+  save("airsync.settings", settings);
+  stopDemo();
+  connect();
+  go("home");
+};
+
+// ② PM2.5 그래프
+function drawChart() {
+  const H = S.hist, W = 320, Ht = 150, pad = 18;
+  if (H.length < 2) {
+    $("chart").innerHTML = '<text x="160" y="80" text-anchor="middle" font-size="12" fill="gray">데이터가 쌓이면 그래프가 나옵니다</text>';
+    return;
+  }
+  const t0 = H[0].t, span = Math.max(1, H[H.length - 1].t - t0);
+  const vals = H.flatMap(h => [h.i, h.o]).filter(v => v != null);
+  const vmax = Math.max(20, Math.ceil(Math.max(...vals) / 10) * 10);   // 위쪽 끝 = 10 단위로 올림
+  const x = t => pad + (W - 2 * pad) * (t - t0) / span;               // 시간 → 가로 위치
+  const y = v => Ht - pad - (Ht - 2 * pad) * v / vmax;                 // 값 → 세로 위치 (위로 갈수록 큼)
+  const line = (key, color) => {
+    const pts = H.filter(h => h[key] != null).map(h => x(h.t).toFixed(1) + "," + y(h[key]).toFixed(1));
+    return `<polyline points="${pts.join(" ")}" fill="none" stroke="${color}" stroke-width="2.2" vector-effect="non-scaling-stroke"/>`;
+  };
+  let grid = "";
+  [0, vmax / 2, vmax].forEach(v => {
+    grid += `<line x1="${pad}" x2="${W - pad}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/>` +
+            `<text x="${pad - 4}" y="${y(v) + 4}" text-anchor="end" font-size="9" fill="var(--muted)">${v}</text>`;
+  });
+  $("chart").innerHTML = grid + line("o", "var(--bad)") + line("i", "var(--accent)");   // 주황 = 실외, 초록 = 실내
+}
+
+// ③ 데모 모드
+let demo = false, demoTimer = null, demoPos = "closed";
+
+function startDemo() {
+  if (client) { client.end(true); client = null; }
+  demo = true;
+  setPill("demo", "데모 모드");
+  $("connBanner").hidden = true;
+  S.mode = "auto";
+  let t = 0;
+  clearInterval(demoTimer);
+  demoTimer = setInterval(() => {
+    t++;
+    const inPm = Math.round(28 + 16 * Math.sin(t / 9) + (demoPos === "open" ? -10 : 0));
+    const outPm = Math.round(14 + 4 * Math.sin(t / 14));
+    handle("indoor/data", JSON.stringify({ pm25: inPm, pm10: Math.round(inPm * 1.2), temp: 24.5, hum: 46, voc: 110 }));
+    handle("outdoor/data", JSON.stringify({ pm25: outPm, pm10: Math.round(outPm * 1.6), temp: 17.2, hum: 61, rain: false }));
+    if (S.mode === "auto") {                                    // 보드의 자동 판단을 흉내 냄
+      if (inPm - outPm >= S.cfg.pmDiffOpen) demoPos = "open";
+      else if (inPm - outPm <= S.cfg.pmDiffClose) demoPos = "closed";
+    }
+    handle("window/state", JSON.stringify({ pos: demoPos, mode: S.mode, reason: "데모 데이터" }));
+  }, 2000);
+}
+function stopDemo() { demo = false; clearInterval(demoTimer); }
+
+// 데모에서 버튼을 누르면 브로커 대신 여기로 옴
+function demoCommand(suffix, obj) {
+  if (suffix === "window/cmd") {
+    S.mode = "manual";
+    demoPos = obj.cmd === "open" ? "open" : obj.cmd === "close" ? "closed" : "middle";
+  }
+  if (suffix === "window/mode") S.mode = obj.mode;
+  if (suffix === "window/config") Object.assign(S.cfg, obj);
+}
+
+$("btnDemo").onclick = () => { startDemo(); go("home"); };
+$("demoBtn").onclick = startDemo;
+
+connect();   // ★ 이 줄은 항상 맨 끝에. 다음 단계 코드는 이 줄 위에 넣음
+</script>
+</body>
+</html>
