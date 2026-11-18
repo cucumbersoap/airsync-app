@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f7f5f1" id="themeColor">
+<meta name="theme-color" content="#eaf2f3" id="themeColor">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Air-Sync">
@@ -13,208 +13,209 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Air-Sync</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Outfit:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap">
 <script>
   // 화면이 그려지기 전에 테마를 먼저 적용 (깜빡임 방지)
   try { const t = localStorage.getItem("airsync.theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
 </script>
 <style>
 /* =========================================================
-   색 변수: 밝은 테마
+   Air-Sync 디자인: 맑은 하늘(청록) 콘셉트
+   색 변수 - 밝은 테마
    ========================================================= */
 :root{
-  --canvas:#f7f5f1; --paper:#ffffff; --sunk:#f1eee9; --ink:#24212f; --muted:#6c6778; --line:#e7e2ea;
-  --primary:#5b46d6; --primary-ink:#ffffff; --primary-soft:#ece8ff;
-  --coral:#ff8f6b; --coral-soft:#ffe8de; --coral-ink:#8f3a22;
-  --hero:#262139; --hero-2:#322c4a; --hero-ink:#f4f1fb; --hero-muted:#b9b2cf;
-  --good:#2f7be0; --ok:#1f9d5b; --bad:#e08a00; --vbad:#d8404a; --none:#9b96a6;
-  --glass:#cfe4f6; --shadow:0 1px 2px rgba(36,33,47,.05),0 10px 30px rgba(36,33,47,.06);
-  --sans:"Noto Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-  --num:"Outfit","Noto Sans KR",system-ui,sans-serif;
-  color-scheme:light;
+  --bg:#eaf2f3; --card:#ffffff; --soft:#f2f7f8; --ink:#0f2329; --sub:#5b7179; --line:#d8e5e8;
+  --main:#0b8a83; --main-ink:#ffffff; --main-soft:#d7f0ed;
+  --sky1:#bfe3f5; --sky2:#e9f6fb; --skyc1:#c9d3db; --skyc2:#eef2f5; --skyr1:#9fb0bd; --skyr2:#d9e1e7;
+  --frame:#29434d; --glass:rgba(255,255,255,.55);
+  --good:#2b7de9; --ok:#14a06b; --bad:#e58a00; --vbad:#e0434f; --none:#a3b2b7;
+  --warn-bg:#fff4e0; --warn-ink:#8a5200;
+  --sans:"IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --num:"Manrope","IBM Plex Sans KR",system-ui,sans-serif;
+  --r:18px; color-scheme:light;
 }
-/* 어두운 테마: 휴대폰 설정이 다크 모드이고 사용자가 '밝게'를 고르지 않았을 때 */
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --canvas:#121119; --paper:#1c1a26; --sunk:#16141f; --ink:#ece9f4; --muted:#a19bb3; --line:#2c2938;
-    --primary:#8f7dff; --primary-ink:#130f2b; --primary-soft:#2a2550;
-    --coral:#ff9a7a; --coral-soft:#3a2420; --coral-ink:#ffc2ad;
-    --hero:#231f36; --hero-2:#2d2844; --hero-ink:#f4f1fb; --hero-muted:#ada6c6;
-    --good:#66a6ff; --ok:#43cf86; --bad:#f4ae3d; --vbad:#ff6b73; --none:#6f6a7d;
-    --glass:#2c4a63; --shadow:none; color-scheme:dark;
+    --bg:#0a1316; --card:#111d21; --soft:#0d181b; --ink:#e4eff1; --sub:#8ea5ac; --line:#21333a;
+    --main:#2fc4b8; --main-ink:#05211f; --main-soft:#103a37;
+    --sky1:#16384a; --sky2:#0f2530; --skyc1:#1b2a33; --skyc2:#131e24; --skyr1:#1f2b33; --skyr2:#141c21;
+    --frame:#a9c3cb; --glass:rgba(160,210,230,.18);
+    --good:#5fa5ff; --ok:#38d293; --bad:#f4ad3c; --vbad:#ff6670; --none:#5e7177;
+    --warn-bg:#33270f; --warn-ink:#ffd08a; color-scheme:dark;
   }
 }
-/* 사용자가 '어둡게'를 고른 경우 */
 :root[data-theme="dark"]{
-  --canvas:#121119; --paper:#1c1a26; --sunk:#16141f; --ink:#ece9f4; --muted:#a19bb3; --line:#2c2938;
-  --primary:#8f7dff; --primary-ink:#130f2b; --primary-soft:#2a2550;
-  --coral:#ff9a7a; --coral-soft:#3a2420; --coral-ink:#ffc2ad;
-  --hero:#231f36; --hero-2:#2d2844; --hero-ink:#f4f1fb; --hero-muted:#ada6c6;
-  --good:#66a6ff; --ok:#43cf86; --bad:#f4ae3d; --vbad:#ff6b73; --none:#6f6a7d;
-  --glass:#2c4a63; --shadow:none; color-scheme:dark;
+  --bg:#0a1316; --card:#111d21; --soft:#0d181b; --ink:#e4eff1; --sub:#8ea5ac; --line:#21333a;
+  --main:#2fc4b8; --main-ink:#05211f; --main-soft:#103a37;
+  --sky1:#16384a; --sky2:#0f2530; --skyc1:#1b2a33; --skyc2:#131e24; --skyr1:#1f2b33; --skyr2:#141c21;
+  --frame:#a9c3cb; --glass:rgba(160,210,230,.18);
+  --good:#5fa5ff; --ok:#38d293; --bad:#f4ad3c; --vbad:#ff6670; --none:#5e7177;
+  --warn-bg:#33270f; --warn-ink:#ffd08a; color-scheme:dark;
 }
 
-/* =========================================================
-   기본 틀
-   ========================================================= */
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
-body{background:var(--canvas);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-tap-highlight-color:transparent;transition:background .25s,color .25s}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-tap-highlight-color:transparent;transition:background .25s,color .25s}
 button{font:inherit;color:inherit;cursor:pointer}
-button:disabled{cursor:default}
 [hidden]{display:none!important}
-.app{max-width:480px;margin:0 auto;min-height:100%;padding:0 max(16px,env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
-.view{display:grid;gap:14px;padding-bottom:8px}
+.app{max-width:460px;margin:0 auto;min-height:100%;padding:0 max(14px,env(safe-area-inset-right)) calc(92px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
+.view{display:grid;gap:12px;padding-bottom:6px}
 
 /* 상단 */
-.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;
-     padding:calc(12px + env(safe-area-inset-top)) 2px 12px;background:var(--canvas)}
-.brand{display:flex;align-items:center;gap:8px;font-family:var(--num);font-weight:700;font-size:22px;letter-spacing:-.02em}
-.brand svg{width:30px;height:30px}
-.brand b{color:var(--coral)}
-.pill{display:inline-flex;align-items:center;gap:7px;border:0;background:none;font-size:13px;font-weight:700;color:var(--ink);padding:6px 4px}
-.pill i{width:8px;height:8px;border-radius:50%;background:var(--none)}
-.pill[data-s="on"] i{background:var(--ok)} .pill[data-s="try"] i{background:var(--bad);animation:blink 1s infinite}
-.pill[data-s="off"] i{background:var(--vbad)} .pill[data-s="demo"] i{background:var(--primary)}
-.pill svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2}
-@keyframes blink{50%{opacity:.3}}
+.top{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 0 10px;background:var(--bg)}
+.logo{width:36px;height:36px;border-radius:11px;background:var(--main);display:grid;place-items:center}
+.logo svg{width:22px;height:22px;fill:none;stroke:var(--main-ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.title b{display:block;font-family:var(--num);font-weight:800;font-size:18px;letter-spacing:-.01em;line-height:1.1}
+.title span{font-size:12px;color:var(--sub)}
+.conn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:6px 10px;font-size:12.5px;font-weight:600}
+.conn i{width:7px;height:7px;border-radius:2px;background:var(--none)}
+.conn[data-s="on"] i{background:var(--ok)} .conn[data-s="try"] i{background:var(--bad);animation:blink 1s infinite}
+.conn[data-s="off"] i{background:var(--vbad)} .conn[data-s="demo"] i{background:var(--good)}
+@keyframes blink{50%{opacity:.25}}
 
-.page-head{padding:8px 2px 2px}
-.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.14em;color:var(--muted);margin:0 0 4px}
-.page-head h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em}
-.page-head p{margin:4px 0 0;color:var(--muted);font-size:14px}
+/* 공통 카드 */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:12px;min-width:0}
+.sec{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sec h2{margin:0;font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.sec h2::before{content:"";width:4px;height:14px;border-radius:2px;background:var(--main)}
+.sec span{font-size:12px;color:var(--sub)}
+.page-title{margin:6px 0 0;font-size:22px;font-weight:700}
+.page-sub{margin:0 0 4px;color:var(--sub);font-size:13.5px}
 
-/* 카드 */
-.card{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow);display:grid;gap:14px;min-width:0}
-.card-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-.card-h h2{margin:0;font-size:15px;font-weight:800}
-.card-h h2 small{font-weight:500;color:var(--muted);font-size:12.5px;margin-left:6px}
-.card-h .side{font-size:12.5px;color:var(--muted)}
-
-/* 알림 띠 */
-.banner{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-radius:16px;padding:12px 14px;font-size:14px;font-weight:500;border:1px solid var(--line);background:var(--paper)}
-.banner.rain{background:color-mix(in srgb,var(--good) 13%,var(--paper));border-color:color-mix(in srgb,var(--good) 35%,var(--line))}
-.banner.err{background:color-mix(in srgb,var(--vbad) 12%,var(--paper));border-color:color-mix(in srgb,var(--vbad) 35%,var(--line))}
-.banner .btn{min-height:36px;padding:0 14px;font-size:13px}
+.notice{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-radius:14px;padding:11px 14px;font-size:13.5px;font-weight:600;background:var(--warn-bg);color:var(--warn-ink)}
+.notice.rain{background:color-mix(in srgb,var(--good) 15%,var(--card));color:var(--ink)}
+.notice.err{background:color-mix(in srgb,var(--vbad) 15%,var(--card));color:var(--ink)}
+.notice button{border:0;border-radius:10px;padding:7px 12px;background:var(--card);font-weight:700;font-size:13px}
 
 /* =========================================================
-   홈: 창문 히어로 카드
+   홈: 하늘 창문 패널 (상태에 따라 하늘색이 바뀜)
    ========================================================= */
-.hero{background:var(--hero);color:var(--hero-ink);border-radius:26px;overflow:hidden;box-shadow:var(--shadow)}
-.hero-top{padding:20px 20px 18px;display:grid;grid-template-columns:1fr 112px;gap:12px;align-items:center}
-.hero-label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--hero-muted);margin:0 0 10px}
-.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.22);color:var(--hero-ink)}
-.chip.manual{background:var(--coral);border-color:var(--coral);color:#2b1209}
-.hero h2{margin:0;font-size:32px;word-break:keep-all;line-height:1.2;font-weight:800;letter-spacing:-.02em}
-.hero .reason{margin:8px 0 0;color:var(--hero-muted);font-size:14px;min-height:21px}
-.hero-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 20px;background:var(--hero-2);font-size:13.5px;color:var(--hero-muted)}
-.hero-foot b{color:var(--hero-ink);font-weight:500}
-.spin{width:14px;height:14px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;display:inline-block;vertical-align:-2px;margin-right:6px;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+.sky{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);
+     background:linear-gradient(180deg,var(--skyc1),var(--skyc2));transition:background .6s}
+.sky[data-pos="open"],.sky[data-pos="opening"]{background:linear-gradient(180deg,var(--sky1),var(--sky2))}
+.sky[data-rain="1"]{background:linear-gradient(180deg,var(--skyr1),var(--skyr2))}
+.sky-in{display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:center;padding:18px}
+.state small{display:block;font-size:12.5px;color:var(--sub);font-weight:600}
+.state strong{display:block;font-size:26px;font-weight:700;line-height:1.25;margin:2px 0 4px;word-break:keep-all}
+.state p{margin:0;font-size:13.5px;color:var(--sub);min-height:20px}
+.sky-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 18px;font-size:12.5px;color:var(--sub);border-top:1px solid color-mix(in srgb,var(--frame) 15%,transparent);background:color-mix(in srgb,var(--card) 55%,transparent)}
+.sky-bar b{color:var(--ink);font-weight:600}
+.dots{display:inline-flex;gap:3px;margin-right:6px;vertical-align:1px}
+.dots i{width:5px;height:5px;border-radius:50%;background:var(--main);animation:dot 1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,100%{opacity:.25}50%{opacity:1}}
 
-/* 창문 그림 */
-.winart{width:112px;height:112px}
-.winart .frame{fill:none;stroke:var(--hero-muted);stroke-width:4;stroke-linejoin:round}
-.winart .sky{fill:#3b3460}
-.winart .glass{fill:var(--glass);opacity:.9}
-.winart .sash{fill:none;stroke:var(--hero-ink);stroke-width:3}
-.winart .pane{transition:transform 1.1s cubic-bezier(.4,0,.2,1)}
-.winart .air{fill:none;stroke:var(--coral);stroke-width:3;stroke-linecap:round;opacity:0;transition:opacity .6s}
-.winart[data-pos="open"] .air,.winart[data-pos="opening"] .air{opacity:1}
-.winart[data-pos="error"] .frame{stroke:var(--vbad)}
-.winart .drop{fill:#8fc2ff;opacity:0;transition:opacity .4s}
-.winart[data-rain="1"] .drop{opacity:1;animation:fall 1.2s linear infinite}
-@keyframes fall{from{transform:translateY(-6px)}to{transform:translateY(8px);opacity:0}}
+.win{width:120px;height:132px}
+.win .fr{fill:none;stroke:var(--frame);stroke-width:5;stroke-linejoin:round}
+.win .sill{fill:var(--frame)}
+.win .gl{fill:var(--glass);stroke:var(--frame);stroke-width:2.5}
+.win .slide{transition:transform 1.1s cubic-bezier(.4,0,.2,1)}
+.win .breeze{fill:none;stroke:var(--main);stroke-width:2.6;stroke-linecap:round;stroke-dasharray:4 6;opacity:0;transition:opacity .5s}
+.win[data-pos="open"] .breeze,.win[data-pos="opening"] .breeze{opacity:1;animation:flow 1.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-20}}
+.win .rain{stroke:var(--good);stroke-width:2;stroke-linecap:round;opacity:0}
+.win[data-rain="1"] .rain{opacity:.9;animation:rain .9s linear infinite}
+@keyframes rain{from{transform:translateY(-8px)}to{transform:translateY(10px)}}
+.win[data-pos="error"] .fr{stroke:var(--vbad)}
 
-/* 공기 카드 */
-.air{display:grid;grid-template-columns:1fr 34px 1fr;align-items:center;gap:6px}
-.side-air .lab{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700}
-.side-air .lab span{display:flex;align-items:center;gap:6px}
-.side-air .lab i{width:8px;height:8px;border-radius:50%}
-.grade{font-style:normal;font-size:12px;font-weight:700;color:var(--muted)}
-.bignum{font-family:var(--num);font-size:46px;font-weight:600;line-height:1.05;letter-spacing:-.03em;margin:6px 0 2px}
-.side-air .sub{font-size:13px;color:var(--muted)}
-.swap{width:26px;height:26px;stroke:var(--muted);fill:none;stroke-width:2;justify-self:center}
-.air-more{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.mini{background:var(--sunk);border-radius:14px;padding:10px 12px}
-.mini dt{font-size:12px;color:var(--muted)}
-.mini dd{margin:2px 0 0;font-family:var(--num);font-weight:600;font-size:17px}
-.compare{margin:0;padding-top:12px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
-.stale .bignum{opacity:.45}
+/* 공기 비교: 링 게이지 */
+.gauges{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gauge{background:var(--soft);border-radius:16px;padding:14px 12px;display:grid;justify-items:center;gap:4px;text-align:center}
+.gauge.stale{opacity:.55}
+.gauge .nm{font-size:13px;font-weight:700}
+.ring{position:relative;width:104px;height:104px}
+.ring svg{width:104px;height:104px;transform:rotate(-90deg)}
+.ring .bg{fill:none;stroke:var(--line);stroke-width:9}
+.ring .fg{fill:none;stroke:var(--none);stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .6s,stroke .4s}
+.ring .val{position:absolute;inset:0;display:grid;place-content:center;line-height:1}
+.ring .val b{font-family:var(--num);font-size:30px;font-weight:800}
+.ring .val span{font-size:10.5px;color:var(--sub);margin-top:3px}
+.gauge .gr{font-size:12px;font-weight:700;padding:2px 10px;border-radius:6px;background:var(--card)}
+.gauge .th{font-size:12.5px;color:var(--sub)}
+.facts{display:flex;gap:8px;flex-wrap:wrap}
+.fact{display:inline-flex;gap:6px;align-items:baseline;border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:12.5px;color:var(--sub)}
+.fact b{font-family:var(--num);font-size:14px;color:var(--ink)}
+.advice{margin:0;display:flex;gap:10px;align-items:flex-start;font-size:13.5px;background:var(--main-soft);border-radius:12px;padding:10px 12px}
+.advice svg{flex:none;width:18px;height:18px;margin-top:1px;fill:none;stroke:var(--main);stroke-width:2;stroke-linecap:round}
 
 /* 조작 */
-.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:18px;background:var(--primary-soft)}
-.seg button{border:1.5px solid transparent;background:none;border-radius:14px;min-height:46px;font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:8px}
-.seg button[aria-pressed="true"]{background:var(--paper);border-color:var(--primary);color:var(--primary)}
-.seg svg,.ctl svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.ctls{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.ctl{min-height:64px;border-radius:18px;border:1.5px solid var(--line);background:var(--paper);font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .12s,background .2s,border-color .2s,box-shadow .2s}
-.ctl:active:not(:disabled){transform:scale(.97)}
-.ctl.open{background:var(--primary);border-color:var(--primary);color:var(--primary-ink)}
-.ctl.stop{background:var(--coral-soft);border-color:transparent;color:var(--coral-ink)}
-.ctl:disabled{opacity:.4}
-.ctl[data-active="1"]{box-shadow:0 0 0 3px var(--canvas),0 0 0 6px var(--primary)}
-.ctl.stop[data-active="1"]{box-shadow:0 0 0 3px var(--canvas),0 0 0 6px var(--coral)}
-.hint{margin:0;text-align:center;font-size:13px;color:var(--muted)}
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.switch-row b{display:block;font-size:14.5px}
+.switch-row span{font-size:12.5px;color:var(--sub)}
+.switch{flex:none;position:relative;width:56px;height:32px;border-radius:999px;border:0;background:var(--line);transition:background .2s}
+.switch::after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.switch[aria-checked="true"]{background:var(--main)}
+.switch[aria-checked="true"]::after{transform:translateX(24px)}
+.switch:disabled{opacity:.45}
+.bar{display:grid;grid-template-columns:1fr 1fr 1fr;border:1.5px solid var(--line);border-radius:16px;overflow:hidden;background:var(--soft)}
+.bar button{border:0;background:none;min-height:60px;display:grid;justify-items:center;align-content:center;gap:3px;font-size:13.5px;font-weight:700;position:relative;transition:background .2s,color .2s}
+.bar button+button{border-left:1.5px solid var(--line)}
+.bar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.bar button:active:not(:disabled){background:var(--main-soft)}
+.bar button:disabled{opacity:.35}
+.bar button[data-active="1"]{background:var(--main);color:var(--main-ink)}
+.bar #btnStop[data-active="1"]{background:var(--bad);color:#241500}
+.tip{margin:0;font-size:12.5px;color:var(--sub)}
 
-.btn{min-height:46px;border-radius:14px;border:1.5px solid var(--line);background:var(--paper);font-weight:700;padding:0 16px}
-.btn.primary{background:var(--primary);border-color:var(--primary);color:var(--primary-ink)}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.linkcard{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;border-radius:16px;border:1px solid var(--line);background:var(--paper);font-weight:700;font-size:14px}
-.linkcard svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.btn{min-height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-weight:700;padding:0 14px}
+.btn.main{background:var(--main);border-color:var(--main);color:var(--main-ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
 /* 그래프 */
-.range{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;border-radius:14px;background:var(--sunk)}
-.range button{border:0;background:none;border-radius:10px;min-height:34px;font-size:13px;font-weight:700;color:var(--muted)}
-.range button[aria-pressed="true"]{background:var(--paper);color:var(--ink);box-shadow:var(--shadow)}
-.chart{width:100%;height:180px;display:block}
-.legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+.range{display:flex;gap:6px;flex-wrap:wrap}
+.range button{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:5px 13px;font-size:12.5px;font-weight:700;color:var(--sub)}
+.range button[aria-pressed="true"]{border-color:var(--main);color:var(--main);background:var(--main-soft)}
+.chart{width:100%;height:190px;display:block}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--sub);flex-wrap:wrap}
 .legend span{display:flex;align-items:center;gap:6px}
-.legend i{width:14px;height:3px;border-radius:2px}
-.note{margin:0;font-size:12.5px;color:var(--muted)}
-.events{list-style:none;margin:0;padding:0;display:grid}
-.events li{display:grid;grid-template-columns:44px 1fr;gap:8px;padding:11px 0;border-top:1px solid var(--line)}
-.events li:first-child{border-top:0}
-.events time{font-family:var(--num);font-size:13px;color:var(--muted)}
-.events b{display:block;font-size:14px}
-.events span{font-size:13px;color:var(--muted)}
-.empty{color:var(--muted);font-size:14px;margin:0}
+.legend i{width:10px;height:10px;border-radius:3px}
+.note{margin:0;font-size:12px;color:var(--sub)}
+.timeline{list-style:none;margin:0;padding:0 0 0 14px;border-left:2px solid var(--line);display:grid;gap:14px}
+.timeline li{position:relative}
+.timeline li::before{content:"";position:absolute;left:-20px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--card);border:2px solid var(--main)}
+.timeline li[data-pos="error"]::before{border-color:var(--vbad)}
+.timeline time{font-family:var(--num);font-size:12px;color:var(--sub)}
+.timeline b{display:block;font-size:14px}
+.timeline span{font-size:12.5px;color:var(--sub)}
+.empty{color:var(--sub);font-size:13.5px;margin:0}
 
 /* 설정 */
-.field{display:grid;gap:6px}
-.field label{font-size:13.5px;font-weight:700}
-.field small{font-size:12px;color:var(--muted)}
-.field input[type=text],.field input[type=url],.field input[type=password],.field input[type=number]{font:inherit;font-size:16px;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--sunk);color:var(--ink);width:100%;min-width:0}
-.field input:focus{outline:none;border-color:var(--primary)}
-.inline{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
-.inline .unit{font-size:13px;color:var(--muted);white-space:nowrap}
-.check{display:flex;gap:10px;align-items:center;font-size:14px}
-.check input{width:20px;height:20px;accent-color:var(--primary)}
-.theme3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.theme3 button{border:1.5px solid var(--line);background:var(--paper);border-radius:16px;padding:10px 6px;display:grid;justify-items:center;gap:6px;font-size:13px;font-weight:700}
-.theme3 button[aria-pressed="true"]{border-color:var(--primary);color:var(--primary);background:var(--primary-soft)}
-.swatch{width:46px;height:30px;border-radius:9px;border:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;overflow:hidden}
-.units{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.unit-st{background:var(--sunk);border-radius:14px;padding:10px;text-align:center;font-size:13px}
-.unit-st b{display:block;font-size:12px;color:var(--muted);font-weight:500}
-.unit-st span{font-weight:700}
-details summary{cursor:pointer;font-weight:800;font-size:15px;list-style:none;display:flex;justify-content:space-between}
+.field{display:grid;gap:5px}
+.field label{font-size:13px;font-weight:600}
+.field small{font-size:11.5px;color:var(--sub)}
+.field input{font:inherit;font-size:16px;padding:11px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--soft);color:var(--ink);width:100%;min-width:0}
+.field input:focus{outline:none;border-color:var(--main)}
+.with-unit{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.with-unit em{font-style:normal;font-size:12.5px;color:var(--sub);white-space:nowrap}
+.check{display:flex;gap:10px;align-items:center;font-size:13.5px}
+.check input{width:20px;height:20px;accent-color:var(--main)}
+.themes{display:grid;grid-template-columns:repeat(3,1fr);border:1.5px solid var(--line);border-radius:14px;overflow:hidden}
+.themes button{border:0;background:var(--card);padding:11px 4px;font-size:13px;font-weight:700;color:var(--sub);display:flex;align-items:center;justify-content:center;gap:6px}
+.themes button+button{border-left:1.5px solid var(--line)}
+.themes button[aria-pressed="true"]{background:var(--main);color:var(--main-ink)}
+.themes svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.units{display:grid;gap:8px}
+.unit-row{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.unit-row:last-child{border-bottom:0}
+.unit-row span{font-weight:700}
+details summary{cursor:pointer;font-weight:700;font-size:14px;list-style:none;display:flex;justify-content:space-between;align-items:center}
 details summary::-webkit-details-marker{display:none}
-details summary::after{content:"＋";color:var(--muted)}
-details[open] summary::after{content:"－"}
+details summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--sub);border-bottom:2px solid var(--sub);transform:rotate(45deg);transition:transform .2s;margin-right:4px}
+details[open] summary::after{transform:rotate(-135deg)}
 details[open] summary{margin-bottom:12px}
-.log{margin:0;font-size:11.5px;max-height:240px;overflow:auto;white-space:pre-wrap;word-break:break-all;color:var(--muted);background:var(--sunk);border-radius:12px;padding:10px}
+.log{margin:0;font-size:11.5px;max-height:240px;overflow:auto;white-space:pre-wrap;word-break:break-all;color:var(--sub);background:var(--soft);border-radius:10px;padding:10px}
 
 /* 아래 탭 */
-.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:8px max(16px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
-.tabs div{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.tab{border:0;background:none;border-radius:16px;padding:8px 4px;display:grid;justify-items:center;gap:2px;font-size:12px;font-weight:700;color:var(--muted)}
-.tab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.tab[aria-current="page"]{background:var(--primary-soft);color:var(--primary)}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--card);border-top:1px solid var(--line);padding:0 max(14px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(14px,env(safe-area-inset-left))}
+.tabs div{max-width:460px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+.tab{position:relative;border:0;background:none;padding:10px 4px 9px;display:grid;justify-items:center;gap:1px;font-size:11.5px;font-weight:600;color:var(--sub)}
+.tab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tab::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:transparent}
+.tab[aria-current="page"]{color:var(--main)}
+.tab[aria-current="page"]::before{background:var(--main)}
 
-.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--canvas);padding:11px 16px;border-radius:14px;font-size:14px;font-weight:500;max-width:calc(100% - 32px);transition:.25s;z-index:9}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,16px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);padding:10px 15px;border-radius:12px;font-size:13.5px;font-weight:500;max-width:calc(100% - 28px);transition:.25s;z-index:9}
 .toast.show{opacity:1;transform:translate(-50%,0)}
-
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -222,121 +223,117 @@ details[open] summary{margin-bottom:12px}
 <div class="app">
 
   <header class="top">
-    <div class="brand">
-      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 11h13a4 4 0 1 0-4-4M5 16h18a4 4 0 1 1-4 4M5 21h8" fill="none" stroke="var(--primary)" stroke-width="2.6" stroke-linecap="round"/></svg>
-      <span>Air-Sync<b>.</b></span>
-    </div>
-    <button class="pill" id="connPill" data-s="off" type="button" aria-label="연결 설정 열기"><i></i><span id="connText">연결 안 됨</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+    <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 3v18M7 10c1.5-1 3 1 4.5 0M13 14c1.5-1 3 1 4.5 0"/></svg></div>
+    <div class="title"><b>Air-Sync</b><span>자동 환기 창문</span></div>
+    <button class="conn" id="connPill" data-s="off" type="button" aria-label="연결 설정 열기"><i></i><span id="connText">연결 안 됨</span></button>
   </header>
 
   <!-- ===================== 홈 ===================== -->
   <main id="view-home" class="view">
-    <div class="banner rain" id="rainBanner" hidden>☂ 실외에서 비가 감지되어 창문을 닫습니다.</div>
-    <div class="banner err" id="errBanner" hidden><span id="errText">창문 오류</span></div>
-    <div class="banner" id="connBanner" hidden><span id="connBannerText">브로커에 연결되지 않았습니다.</span><button class="btn" id="demoBtn" type="button">데모로 보기</button></div>
+    <div class="notice rain" id="rainBanner" hidden>☂ 바깥에 비가 와요. 창문을 닫습니다.</div>
+    <div class="notice err" id="errBanner" hidden><span id="errText">창문 오류</span></div>
+    <div class="notice" id="connBanner" hidden><span id="connBannerText">브로커에 연결되지 않았어요.</span><button id="demoBtn" type="button">데모 실행</button></div>
 
-    <section class="hero" aria-label="창문 상태">
-      <div class="hero-top">
-        <div>
-          <p class="hero-label">창문 <span class="chip" id="modeChip">자동 관리</span></p>
-          <h2 id="posText">상태 모름</h2>
-          <p class="reason" id="reasonText">창문 유닛의 응답을 기다리는 중</p>
-        </div>
-        <svg class="winart" id="winArt" viewBox="0 0 112 112" data-pos="unknown" aria-hidden="true">
-          <rect x="14" y="14" width="84" height="84" rx="10" class="sky"/>
-          <g class="drops"><circle class="drop" cx="34" cy="30" r="2"/><circle class="drop" cx="62" cy="22" r="2"/><circle class="drop" cx="84" cy="34" r="2"/></g>
-          <g class="pane" id="pane"><rect x="20" y="20" width="38" height="72" rx="4" class="glass"/><rect x="20" y="20" width="38" height="72" rx="4" class="sash"/></g>
-          <rect x="56" y="20" width="36" height="72" rx="4" class="glass" opacity=".55"/>
-          <rect x="56" y="20" width="36" height="72" rx="4" class="sash"/>
-          <path class="air" d="M64 44h18a5 5 0 1 0-5-5M64 56h22a5 5 0 1 1-5 5M64 68h10"/>
-          <rect x="14" y="14" width="84" height="84" rx="10" class="frame"/>
+    <section class="sky" id="sky" data-pos="unknown" aria-label="창문 상태">
+      <div class="sky-in">
+        <svg class="win" id="winArt" viewBox="0 0 120 132" data-pos="unknown" aria-hidden="true">
+          <g class="rain"><path d="M30 18v8M58 10v8M88 20v8M44 34v8M76 30v8"/></g>
+          <rect x="12" y="10" width="96" height="104" rx="6" class="gl" opacity=".35"/>
+          <rect x="62" y="16" width="40" height="92" rx="3" class="gl"/>
+          <g class="slide" id="pane"><rect x="18" y="16" width="44" height="92" rx="3" class="gl"/><path d="M54 56v12" stroke="var(--frame)" stroke-width="3" stroke-linecap="round"/></g>
+          <path class="breeze" d="M70 46h24M66 62h30M72 78h20"/>
+          <rect x="12" y="10" width="96" height="104" rx="6" class="fr"/>
+          <rect x="6" y="114" width="108" height="8" rx="3" class="sill"/>
         </svg>
+        <div class="state">
+          <small id="modeChip">자동 운전</small>
+          <strong id="posText">기다리는 중</strong>
+          <p id="reasonText">창문 유닛의 응답을 기다리는 중</p>
+        </div>
       </div>
-      <div class="hero-foot"><span id="heroFoot">창문 유닛 기다리는 중</span><span id="winAge"></span></div>
+      <div class="sky-bar"><span id="heroFoot">창문 유닛 기다리는 중</span><span id="winAge"></span></div>
     </section>
 
-    <section class="card" aria-label="지금 공기">
-      <div class="card-h"><h2>지금 공기<small>PM2.5</small></h2><span class="side">µg/m³</span></div>
-      <div class="air">
-        <div class="side-air" id="inSide">
-          <div class="lab"><span><i style="background:var(--primary)"></i>실내</span><em class="grade" id="inGrade">-</em></div>
-          <div class="bignum" id="inPm25">--</div>
-          <div class="sub" id="inSub">--°C · --%</div>
+    <section class="card" aria-label="공기 비교">
+      <div class="sec"><h2>안과 밖 공기</h2><span>PM2.5 · µg/m³</span></div>
+      <div class="gauges">
+        <div class="gauge" id="inSide">
+          <div class="nm">실내</div>
+          <div class="ring"><svg viewBox="0 0 104 104"><circle class="bg" cx="52" cy="52" r="44"/><circle class="fg" id="inRing" cx="52" cy="52" r="44" stroke-dasharray="276.5" stroke-dashoffset="276.5"/></svg><div class="val"><b id="inPm25">--</b><span>PM2.5</span></div></div>
+          <div class="gr" id="inGrade">-</div>
+          <div class="th" id="inSub">--°C · --%</div>
         </div>
-        <svg class="swap" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h15l-4-4M20 16H5l4 4"/></svg>
-        <div class="side-air" id="outSide">
-          <div class="lab"><span><i style="background:var(--coral)"></i>실외</span><em class="grade" id="outGrade">-</em></div>
-          <div class="bignum" id="outPm25">--</div>
-          <div class="sub" id="outSub">--°C · --%</div>
+        <div class="gauge" id="outSide">
+          <div class="nm">실외</div>
+          <div class="ring"><svg viewBox="0 0 104 104"><circle class="bg" cx="52" cy="52" r="44"/><circle class="fg" id="outRing" cx="52" cy="52" r="44" stroke-dasharray="276.5" stroke-dashoffset="276.5"/></svg><div class="val"><b id="outPm25">--</b><span>PM2.5</span></div></div>
+          <div class="gr" id="outGrade">-</div>
+          <div class="th" id="outSub">--°C · --%</div>
         </div>
       </div>
-      <dl class="air-more">
-        <div class="mini"><dt>실내 VOC</dt><dd id="inVoc">--</dd></div>
-        <div class="mini"><dt>실외 PM10</dt><dd id="outPm10">--</dd></div>
-        <div class="mini"><dt>비</dt><dd id="outRain">--</dd></div>
-      </dl>
-      <p class="compare" id="compareText">실내와 실외 값을 받으면 비교해 드립니다.</p>
+      <div class="facts">
+        <span class="fact">VOC 지수 <b id="inVoc">--</b></span>
+        <span class="fact">실외 PM10 <b id="outPm10">--</b></span>
+        <span class="fact">강수 <b id="outRain">--</b></span>
+      </div>
+      <p class="advice"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg><span id="compareText">실내와 실외 값을 받으면 비교해 드려요.</span></p>
     </section>
 
     <section class="card" aria-label="창문 조작">
-      <div class="seg" role="group" aria-label="모드">
-        <button type="button" id="modeAuto" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>자동 관리</button>
-        <button type="button" id="modeManual" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>직접 조작</button>
+      <div class="switch-row">
+        <div><b>자동 운전</b><span id="modeHint">공기 상태를 보고 창문이 알아서 움직여요</span></div>
+        <button class="switch" id="modeSwitch" role="switch" aria-checked="false" type="button" aria-label="자동 운전"></button>
       </div>
-      <div class="ctls">
-        <button type="button" class="ctl open" id="btnOpen"><svg viewBox="0 0 24 24"><path d="M4 4h10v16H4zM14 12h7M18 9l3 3-3 3"/></svg>열기</button>
-        <button type="button" class="ctl stop" id="btnStop"><svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"/></svg>정지</button>
-        <button type="button" class="ctl" id="btnClose"><svg viewBox="0 0 24 24"><path d="M10 4h10v16H10zM3 12h7M7 9l3 3-3 3"/></svg>닫기</button>
+      <div class="bar">
+        <button type="button" id="btnOpen"><svg viewBox="0 0 24 24"><path d="M3 4h8v16H3zM21 12h-7M17 8l4 4-4 4"/></svg>열기</button>
+        <button type="button" id="btnStop"><svg viewBox="0 0 24 24"><path d="M9 7v10M15 7v10"/></svg>멈춤</button>
+        <button type="button" id="btnClose"><svg viewBox="0 0 24 24"><path d="M13 4h8v16h-8zM3 12h7M7 8l4 4-4 4"/></svg>닫기</button>
       </div>
-      <p class="hint" id="modeHint">자동 관리: 실내·실외 공기를 비교해 창문이 스스로 움직여요.</p>
+      <p class="tip" id="ctlTip">버튼으로 움직이면 자동 운전이 꺼져요.</p>
     </section>
-
-    <div class="row2">
-      <button class="linkcard" type="button" data-go="history"><svg viewBox="0 0 24 24"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg>기록 보기</button>
-      <button class="linkcard" type="button" data-go="settings" data-scroll="rulesCard"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>자동 규칙</button>
-    </div>
   </main>
 
-  <!-- ===================== 기록 ===================== -->
+  <!-- ===================== 그래프 ===================== -->
   <main id="view-history" class="view" hidden>
-    <div class="page-head"><p class="eyebrow">HISTORY</p><h1>공기의 기록</h1><p>미세먼지 변화와 창문이 움직인 기록이에요.</p></div>
+    <h1 class="page-title">측정 그래프</h1>
+    <p class="page-sub">미세먼지 흐름과 창문 동작 내역</p>
     <section class="card">
-      <div class="card-h"><h2>PM2.5 변화</h2><span class="side" id="chartTitle">앱을 연 뒤 30분</span></div>
+      <div class="sec"><h2>PM2.5 추이</h2><span id="chartTitle">앱을 연 뒤 30분</span></div>
       <div class="range" id="rangeBtns">
         <button type="button" data-h="0" aria-pressed="true">실시간</button>
         <button type="button" data-h="6">6시간</button>
-        <button type="button" data-h="24">24시간</button>
-        <button type="button" data-h="168">7일</button>
+        <button type="button" data-h="24">하루</button>
+        <button type="button" data-h="168">일주일</button>
       </div>
-      <svg class="chart" id="chart" viewBox="0 0 320 180" preserveAspectRatio="none" role="img" aria-label="실내와 실외 PM2.5 변화"></svg>
-      <div class="legend"><span><i style="background:var(--primary)"></i>실내</span><span><i style="background:var(--coral)"></i>실외</span><span><i style="background:var(--bad);height:0;border-top:2px dashed var(--bad)"></i>나쁨 기준 35</span></div>
+      <svg class="chart" id="chart" viewBox="0 0 320 190" preserveAspectRatio="none" role="img" aria-label="실내와 실외 PM2.5 추이"></svg>
+      <div class="legend"><span><i style="background:var(--main)"></i>실내</span><span><i style="background:var(--good)"></i>실외</span><span><i style="background:var(--bad);opacity:.35"></i>나쁨 구간(36 이상)</span></div>
       <p class="note" id="chartNote"></p>
     </section>
     <section class="card">
-      <div class="card-h"><h2>창문 기록</h2><span class="side" id="eventsSide">최근 20개</span></div>
-      <ul class="events" id="events"></ul>
+      <div class="sec"><h2>창문 동작 내역</h2><span id="eventsSide">앱을 연 뒤</span></div>
+      <ul class="timeline" id="events"></ul>
     </section>
   </main>
 
   <!-- ===================== 설정 ===================== -->
   <main id="view-settings" class="view" hidden>
-    <div class="page-head"><p class="eyebrow">SETTINGS</p><h1>설정</h1><p>화면, 연결, 자동 규칙을 바꿀 수 있어요.</p></div>
+    <h1 class="page-title">설정</h1>
+    <p class="page-sub">테마, 연결, 자동 운전 기준</p>
 
     <section class="card">
-      <div class="card-h"><h2>화면 테마</h2></div>
-      <div class="theme3" id="themeBtns">
-        <button type="button" data-t="system"><span class="swatch"><span style="background:#f7f5f1"></span><span style="background:#121119"></span></span>기기 설정</button>
-        <button type="button" data-t="light"><span class="swatch" style="background:#f7f5f1"></span>밝게</button>
-        <button type="button" data-t="dark"><span class="swatch" style="background:#121119"></span>어둡게</button>
+      <div class="sec"><h2>화면 테마</h2></div>
+      <div class="themes" id="themeBtns">
+        <button type="button" data-t="system"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/></svg>자동</button>
+        <button type="button" data-t="light"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/></svg>라이트</button>
+        <button type="button" data-t="dark"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>다크</button>
       </div>
     </section>
 
     <section class="card">
-      <div class="card-h"><h2>유닛 연결 상태</h2></div>
+      <div class="sec"><h2>유닛 상태</h2></div>
       <div class="units">
-        <div class="unit-st"><b>실내</b><span id="stIndoor">모름</span></div>
-        <div class="unit-st"><b>실외</b><span id="stOutdoor">모름</span></div>
-        <div class="unit-st"><b>창문</b><span id="stWindow">모름</span></div>
+        <div class="unit-row">실내 유닛 (SEN54)<span id="stIndoor">모름</span></div>
+        <div class="unit-row">실외 유닛 (SHT31·PM-G7·빗물)<span id="stOutdoor">모름</span></div>
+        <div class="unit-row">창문 유닛 (모터)<span id="stWindow">모름</span></div>
       </div>
     </section>
 
@@ -345,38 +342,38 @@ details[open] summary{margin-bottom:12px}
         <summary>브로커 연결</summary>
         <div class="view">
           <div class="field"><label for="s-url">브로커 주소</label><input type="url" id="s-url" autocomplete="off" spellcheck="false"><small>공개 브로커: wss://broker.hivemq.com:8884/mqtt · AWS 서버: wss://서버주소/mqtt</small></div>
-          <div class="field"><label for="s-base">토픽 앞부분</label><input type="text" id="s-base" autocomplete="off" autocapitalize="off" spellcheck="false"><small>보드 config.h 의 MQTT_BASE 와 똑같이</small></div>
+          <div class="field"><label for="s-base">토픽 앞부분</label><input type="text" id="s-base" autocomplete="off" autocapitalize="off" spellcheck="false"><small>보드 config.h 의 MQTT_BASE 와 같게</small></div>
           <div class="field"><label for="s-user">아이디</label><input type="text" id="s-user" autocomplete="off" autocapitalize="off"></div>
-          <div class="field"><label for="s-pass">비밀번호</label><input type="password" id="s-pass" autocomplete="off"><small>이 브라우저에만 저장됩니다</small></div>
-          <div class="row2"><button type="button" class="btn" id="btnDisconnect">끊기</button><button type="button" class="btn primary" id="btnConnect">저장하고 연결</button></div>
-          <button type="button" class="btn" id="btnDemo">데모 모드 (가짜 데이터로 보기)</button>
+          <div class="field"><label for="s-pass">비밀번호</label><input type="password" id="s-pass" autocomplete="off"><small>이 브라우저에만 저장돼요</small></div>
+          <div class="two"><button type="button" class="btn" id="btnDisconnect">연결 끊기</button><button type="button" class="btn main" id="btnConnect">저장 후 연결</button></div>
+          <button type="button" class="btn" id="btnDemo">데모 실행 (가짜 데이터)</button>
         </div>
       </details>
     </section>
 
     <section class="card" id="rulesCard">
       <details id="rulesDetails">
-        <summary>자동 환기 규칙</summary>
+        <summary>자동 운전 기준</summary>
         <div class="view">
-          <div class="field"><label for="c-outPm25Max">실외 PM2.5가 이보다 나쁘면 닫기</label><div class="inline"><input type="number" id="c-outPm25Max" inputmode="decimal"><span class="unit">µg/m³</span></div><small>환경부 기준 36부터 "나쁨"</small></div>
-          <div class="field"><label for="c-pmDiffOpen">실내가 실외보다 이만큼 탁하면 열기</label><div class="inline"><input type="number" id="c-pmDiffOpen" inputmode="decimal"><span class="unit">µg/m³ 차이</span></div></div>
-          <div class="field"><label for="c-pmDiffClose">차이가 이만큼 줄면 닫기</label><div class="inline"><input type="number" id="c-pmDiffClose" inputmode="decimal"><span class="unit">µg/m³ 차이</span></div></div>
-          <div class="field"><label for="c-vocOpen">실내 VOC 지수가 이 이상이면 열기</label><div class="inline"><input type="number" id="c-vocOpen" inputmode="numeric"><span class="unit">평소 100</span></div></div>
-          <div class="field"><label for="c-vocClose">VOC 지수가 이 이하이면 닫기 가능</label><div class="inline"><input type="number" id="c-vocClose" inputmode="numeric"><span class="unit">지수</span></div></div>
-          <div class="row2">
-            <div class="field"><label for="c-tempMin">실외 최저 온도</label><div class="inline"><input type="number" id="c-tempMin" inputmode="decimal"><span class="unit">°C</span></div></div>
-            <div class="field"><label for="c-tempMax">실외 최고 온도</label><div class="inline"><input type="number" id="c-tempMax" inputmode="decimal"><span class="unit">°C</span></div></div>
+          <div class="field"><label for="c-outPm25Max">바깥 PM2.5가 이 값을 넘으면 닫기</label><div class="with-unit"><input type="number" id="c-outPm25Max" inputmode="decimal"><em>µg/m³</em></div><small>환경부 기준 36부터 "나쁨"</small></div>
+          <div class="field"><label for="c-pmDiffOpen">안이 바깥보다 이만큼 높으면 열기</label><div class="with-unit"><input type="number" id="c-pmDiffOpen" inputmode="decimal"><em>µg/m³</em></div></div>
+          <div class="field"><label for="c-pmDiffClose">차이가 이만큼 이하로 줄면 닫기</label><div class="with-unit"><input type="number" id="c-pmDiffClose" inputmode="decimal"><em>µg/m³</em></div></div>
+          <div class="field"><label for="c-vocOpen">VOC 지수가 이 이상이면 열기</label><div class="with-unit"><input type="number" id="c-vocOpen" inputmode="numeric"><em>보통 100</em></div></div>
+          <div class="field"><label for="c-vocClose">VOC 지수가 이 이하면 닫아도 됨</label><div class="with-unit"><input type="number" id="c-vocClose" inputmode="numeric"><em>지수</em></div></div>
+          <div class="two">
+            <div class="field"><label for="c-tempMin">바깥 최저 온도</label><div class="with-unit"><input type="number" id="c-tempMin" inputmode="decimal"><em>°C</em></div></div>
+            <div class="field"><label for="c-tempMax">바깥 최고 온도</label><div class="with-unit"><input type="number" id="c-tempMax" inputmode="decimal"><em>°C</em></div></div>
           </div>
-          <div class="field"><label for="c-minIntervalSec">자동으로 움직인 뒤 최소 대기 시간</label><div class="inline"><input type="number" id="c-minIntervalSec" inputmode="numeric"><span class="unit">초</span></div></div>
-          <label class="check"><input type="checkbox" id="c-rainCloseInManual">직접 조작 중에도 비가 오면 닫기</label>
-          <div class="row2"><button type="button" class="btn" id="cfgReset">기본값</button><button type="button" class="btn primary" id="cfgSave">보드에 저장</button></div>
+          <div class="field"><label for="c-minIntervalSec">자동으로 움직인 뒤 쉬는 시간</label><div class="with-unit"><input type="number" id="c-minIntervalSec" inputmode="numeric"><em>초</em></div></div>
+          <label class="check"><input type="checkbox" id="c-rainCloseInManual">자동 운전이 꺼져 있어도 비 오면 닫기</label>
+          <div class="two"><button type="button" class="btn" id="cfgReset">기본값 채우기</button><button type="button" class="btn main" id="cfgSave">보드에 저장</button></div>
         </div>
       </details>
     </section>
 
     <section class="card">
       <details>
-        <summary>받은 메시지 (최근 30개)</summary>
+        <summary>수신 메시지 (최근 30개)</summary>
         <pre class="log" id="log">아직 없음</pre>
       </details>
     </section>
@@ -384,9 +381,9 @@ details[open] summary{margin-bottom:12px}
 </div>
 
 <nav class="tabs" aria-label="화면 이동"><div>
-  <button class="tab" data-view="home" aria-current="page" type="button"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></svg>홈</button>
-  <button class="tab" data-view="history" type="button"><svg viewBox="0 0 24 24"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg>기록</button>
-  <button class="tab" data-view="settings" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>설정</button>
+  <button class="tab" data-view="home" aria-current="page" type="button"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M12 3v18"/></svg>창문</button>
+  <button class="tab" data-view="history" type="button"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 7-8"/><path d="M3 21h18"/></svg>그래프</button>
+  <button class="tab" data-view="settings" type="button"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>설정</button>
 </div></nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -442,10 +439,10 @@ function hhmm(t){ return new Date(t).toTimeString().slice(0,5); }
 
 // ---------------- 메시지 처리 ----------------
 const POS = {
-  open:["열려 있어요",1], closed:["닫혀 있어요",0], opening:["여는 중…",.75], closing:["닫는 중…",.25],
-  middle:["중간에 멈춤",.5], unknown:["위치 모름",0], error:["오류 발생",.5]
+  open:["창문 열림",1], closed:["창문 닫힘",0], opening:["열리는 중",.7], closing:["닫히는 중",.3],
+  middle:["중간에 정지",.5], unknown:["위치 확인 중",0], error:["창문 오류",.5]
 };
-const POS_SHORT = {open:"열림", closed:"닫힘", opening:"여는 중", closing:"닫는 중", middle:"중간 멈춤", unknown:"위치 모름", error:"오류"};
+const POS_SHORT = {open:"창문 열림", closed:"창문 닫힘", opening:"열리는 중", closing:"닫히는 중", middle:"중간에 정지", unknown:"위치 확인 중", error:"창문 오류"};
 
 function handle(suffix, text){
   addLog(suffix, text);
@@ -455,17 +452,19 @@ function handle(suffix, text){
   else if(suffix==="outdoor/data"){ S.outdoor=d; S.outTs=Date.now(); pushHist(); }
   else if(suffix==="window/state"){
     const prev = S.win;
-    S.win = d; S.winTs = Date.now(); if(d.mode) S.mode = d.mode;
+    S.win = d; S.winTs = Date.now(); if(d.mode && !S.pending) S.mode = d.mode;
     if(!prev || prev.pos !== d.pos || prev.mode !== d.mode) addEvent(d);
-    settlePending(d.pos);
+    settlePending(d.pos, d.mode);
+    if(d.mode && !S.pending) S.mode = d.mode;
   }
   else if(suffix==="window/mode"){ if(d.mode) S.mode = d.mode; }
   else if(suffix==="window/config"){ Object.assign(S.cfg, d); fillCfg(); }
   render();
 }
 // 버튼을 누른 뒤 보드가 그 명령을 받아들였는지 확인
-function settlePending(pos){
+function settlePending(pos, mode){
   const p = S.pending; if(!p) return;
+  if(mode && mode !== "manual") return;   // 보드는 명령을 받으면 수동으로 바뀜. 아직 자동이면 명령 전 상태
   if(p.cmd==="open"  && (pos==="opening" || pos==="open"))  S.pending = null;
   if(p.cmd==="close" && (pos==="closing" || pos==="closed")) S.pending = null;
   if(p.cmd==="stop"  && pos!=="opening" && pos!=="closing")  S.pending = null;
@@ -489,6 +488,7 @@ function addLog(suffix, text){
 }
 
 // ---------------- 화면 그리기 ----------------
+const RING = 276.5;   // 링 둘레 (2 x 3.14 x 44)
 function render(){
   const now = Date.now();
   const live = demo || (client && client.connected);
@@ -497,130 +497,129 @@ function render(){
   // 버튼을 누르고 응답이 없으면 정리
   if(S.pending && now - S.pending.at > PENDING_MS){
     const cmd = S.pending.cmd; S.pending = null;
-    const pos = w && w.pos;
-    const already = (cmd==="open" && pos==="open") || (cmd==="close" && pos==="closed");
-    if(!already) toast("창문 유닛이 응답하지 않습니다. 전원과 연결을 확인해 주세요");
+    const p0 = w && w.pos;
+    const already = (cmd==="open" && p0==="open") || (cmd==="close" && p0==="closed");
+    if(!already) toast("창문 유닛 응답이 없어요. 전원과 Wi-Fi를 확인해 주세요");
   }
 
-  // 화면에 보여 줄 위치: 응답을 기다리는 중이면 누른 버튼 기준으로 먼저 보여 줌
+  // 응답을 기다리는 중이면 누른 버튼 기준으로 먼저 보여 줌
   let pos = w && w.pos || "unknown";
   const pend = S.pending;
   if(pend){ if(pend.cmd==="open" && pos!=="open") pos = "opening"; else if(pend.cmd==="close" && pos!=="closed") pos = "closing"; }
   const mode = (pend ? "manual" : null) || S.mode || (w && w.mode) || null;
+  const outFresh = S.outTs && now-S.outTs < STALE*1000;
+  const raining = !!(outFresh && S.outdoor && S.outdoor.rain);
 
-  // 히어로 카드
+  // 하늘 창문 패널
   const [label, frac] = POS[pos] || POS.unknown;
   $("posText").textContent = (w || pend) ? label : "기다리는 중";
-  $("reasonText").textContent = pend ? (pend.cmd==="stop" ? "정지 명령을 보냈어요" : "앱에서 보낸 명령") : (w ? (w.reason || "") : "창문 유닛의 응답을 기다리는 중");
-  $("winArt").dataset.pos = pos;
-  $("pane").style.transform = "translateX(" + (frac*34).toFixed(1) + "px)";
-  const outFresh = S.outTs && now-S.outTs < STALE*1000;
-  $("winArt").dataset.rain = outFresh && S.outdoor && S.outdoor.rain ? "1" : "0";
-  $("modeChip").textContent = mode==="manual" ? "직접 조작" : mode==="auto" ? "자동 관리" : "모드 모름";
-  $("modeChip").classList.toggle("manual", mode==="manual");
-  if(pend) $("heroFoot").innerHTML = '<span class="spin"></span><b>창문 유닛 응답 기다리는 중</b>';
-  else if(S.status.window==="offline") $("heroFoot").textContent = "창문 유닛이 꺼져 있어요";
-  else $("heroFoot").textContent = w ? "창문 유닛 연결됨" : "창문 유닛 기다리는 중";
-  $("winAge").textContent = S.winTs ? ago(S.winTs) : "";
+  $("reasonText").textContent = pend ? (pend.cmd==="stop" ? "멈춤 명령 전송" : "앱 버튼으로 움직이는 중") : (w ? (w.reason || "") : "창문 유닛의 응답을 기다리는 중");
+  $("sky").dataset.pos = pos; $("winArt").dataset.pos = pos;
+  $("sky").dataset.rain = raining ? "1" : "0"; $("winArt").dataset.rain = raining ? "1" : "0";
+  $("pane").style.transform = "translateX(" + (frac*40).toFixed(1) + "px)";
+  $("modeChip").textContent = mode==="manual" ? "수동 조작 중" : mode==="auto" ? "자동 운전 중" : "모드 확인 중";
+  if(pend) $("heroFoot").innerHTML = '<span class="dots"><i></i><i></i><i></i></span><b>창문 유닛 응답 대기</b>';
+  else if(S.status.window==="offline") $("heroFoot").textContent = "창문 유닛 꺼짐";
+  else $("heroFoot").textContent = w ? "창문 유닛 연결됨" : "창문 유닛 대기 중";
+  $("winAge").textContent = S.winTs ? ago(S.winTs) + " 갱신" : "";
 
-  // 모드와 버튼
-  $("modeAuto").setAttribute("aria-pressed", mode==="auto");
-  $("modeManual").setAttribute("aria-pressed", mode==="manual");
-  $("modeHint").textContent = !live ? "연결되면 버튼을 쓸 수 있어요."
-    : mode==="manual" ? "직접 조작: 버튼으로만 움직여요." + (S.cfg.rainCloseInManual ? " 비가 오면 자동으로 닫혀요." : "")
-    : "자동 관리: 실내·실외 공기를 비교해 창문이 스스로 움직여요. 버튼을 누르면 직접 조작으로 바뀌어요.";
-  ["modeAuto","modeManual","btnStop"].forEach(id => $(id).disabled = !live);
+  // 자동 운전 스위치와 버튼
+  $("modeSwitch").setAttribute("aria-checked", mode==="auto");
+  $("modeSwitch").disabled = !live;
+  $("modeHint").textContent = !live ? "연결되면 조작할 수 있어요"
+    : mode==="auto" ? "공기 상태를 보고 창문이 알아서 움직여요"
+    : "꺼짐 · 버튼으로만 움직여요" + (S.cfg.rainCloseInManual ? " (비 오면 닫힘)" : "");
+  $("btnStop").disabled  = !live;
   $("btnOpen").disabled  = !live || (!pend && pos==="open");
   $("btnClose").disabled = !live || (!pend && pos==="closed");
-  // 지금 움직이는 방향의 버튼을 강조
   $("btnOpen").dataset.active  = pos==="opening" ? "1" : "0";
   $("btnClose").dataset.active = pos==="closing" ? "1" : "0";
   $("btnStop").dataset.active  = pend && pend.cmd==="stop" ? "1" : "0";
 
-  // 배너
-  $("rainBanner").hidden = !(outFresh && S.outdoor && S.outdoor.rain);
+  // 알림 띠
+  $("rainBanner").hidden = !raining;
   $("errBanner").hidden = pos!=="error";
-  $("errText").textContent = "창문 오류: " + (w && w.reason || "") + " — 원인을 확인한 뒤 열기·닫기를 누르거나 자동 관리로 바꾸면 풀려요.";
+  $("errText").textContent = "창문 오류: " + (w && w.reason || "") + " · 확인 후 열기/닫기를 누르거나 자동 운전을 켜면 풀려요.";
 
-  // 공기 카드
+  // 공기 비교
   const i = S.indoor || {}, o = S.outdoor || {}, inFresh = S.inTs && now-S.inTs < STALE*1000;
   setSide("in", i, inFresh, S.inTs, S.status.indoor);
   setSide("out", o, outFresh, S.outTs, S.status.outdoor);
   const gv = gradeVoc(i.voc);
   $("inVoc").textContent = fmt(i.voc, 0); $("inVoc").style.color = gv ? GCOLOR[gv] : "";
   $("outPm10").textContent = fmt(o.pm10, 0);
-  $("outRain").textContent = S.outdoor ? (o.rain ? "비 옴" : "안 옴") : "--";
+  $("outRain").textContent = S.outdoor ? (o.rain ? "비" : "없음") : "--";
   $("outRain").style.color = S.outdoor && o.rain ? "var(--good)" : "";
 
   let msg = "실내와 실외 값을 받으면 비교해 드려요.";
   if(inFresh && outFresh && i.pm25!=null && o.pm25!=null){
     const diff = i.pm25 - o.pm25;
-    if(o.rain) msg = "비가 와서 환기하지 않아요.";
-    else if(o.pm25 > S.cfg.outPm25Max) msg = "실외 미세먼지가 " + GNAME[gradePm25(o.pm25)] + "이라 창문을 닫아 두는 게 좋아요.";
-    else if(diff >= S.cfg.pmDiffOpen) msg = "실내 먼지가 " + diff.toFixed(0) + " µg/m³ 더 높아요. 환기하면 좋아요.";
-    else if(i.voc!=null && i.voc >= S.cfg.vocOpen) msg = "실내 VOC 지수가 " + i.voc.toFixed(0) + "로 높아요. 환기하면 좋아요.";
-    else if(diff <= S.cfg.pmDiffClose) msg = "실내와 실외 공기가 비슷해요 (차이 " + diff.toFixed(0) + ").";
-    else msg = "실내가 실외보다 조금 탁해요 (차이 " + diff.toFixed(0) + ").";
+    if(o.rain) msg = "비가 오는 중이라 환기를 쉬어요.";
+    else if(o.pm25 > S.cfg.outPm25Max) msg = "바깥 공기가 " + GNAME[gradePm25(o.pm25)] + " 수준이에요. 닫아 두는 쪽이 나아요.";
+    else if(diff >= S.cfg.pmDiffOpen) msg = "안쪽 PM2.5가 바깥보다 " + diff.toFixed(0) + " 높아요 → 환기 추천";
+    else if(i.voc!=null && i.voc >= S.cfg.vocOpen) msg = "VOC 지수 " + i.voc.toFixed(0) + " → 환기 추천";
+    else if(diff <= S.cfg.pmDiffClose) msg = "안팎 공기 차이가 " + Math.abs(diff).toFixed(0) + "로 작아요. 지금 상태 유지.";
+    else msg = "안쪽이 바깥보다 " + diff.toFixed(0) + " 높아요. 조금 더 지켜볼게요.";
   }
   $("compareText").textContent = msg;
 
-  // 연결 상태
+  // 유닛 상태
   [["stIndoor","indoor"],["stOutdoor","outdoor"],["stWindow","window"]].forEach(([id,u]) => {
-    const s = S.status[u]; $(id).textContent = s==="online" ? "온라인" : s==="offline" ? "오프라인" : "모름";
-    $(id).style.color = s==="online" ? "var(--ok)" : s==="offline" ? "var(--vbad)" : "var(--muted)";
+    const s = S.status[u]; $(id).textContent = s==="online" ? "● 켜짐" : s==="offline" ? "● 꺼짐" : "확인 중";
+    $(id).style.color = s==="online" ? "var(--ok)" : s==="offline" ? "var(--vbad)" : "var(--sub)";
   });
   if(!$("view-history").hidden) drawChart();
 }
 function setSide(k, d, fresh, ts, status){
   const g = gradePm25(d.pm25);
   $(k+"Pm25").textContent = fmt(d.pm25, 0);
-  $(k+"Pm25").style.color = k==="out" && d.pm25!=null ? "var(--coral-ink)" : "";
-  $(k+"Grade").textContent = status==="offline" ? "꺼짐" : !ts ? "-" : !fresh ? "오래됨" : g ? GNAME[g] : "-";
+  const ratio = d.pm25==null ? 0 : Math.min(1, d.pm25 / 100);     // 100 µg/m³ 를 한 바퀴로
+  $(k+"Ring").style.strokeDashoffset = (RING * (1 - ratio)).toFixed(1);
+  $(k+"Ring").style.stroke = g ? GCOLOR[g] : "var(--none)";
+  $(k+"Grade").textContent = status==="offline" ? "유닛 꺼짐" : !ts ? "대기 중" : !fresh ? "값 오래됨" : g ? GNAME[g] : "-";
   $(k+"Grade").style.color = fresh && g ? GCOLOR[g] : "";
   $(k+"Sub").textContent = fmt(d.temp, 1, "°C") + " · " + fmt(d.hum, 0, "%");
   $(k+"Side").classList.toggle("stale", !!ts && !fresh);
 }
 
 // ---------------- 그래프 ----------------
-function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
 function drawChart(){
-  const svg = $("chart"), H = S.range > 0 ? S.serverHist : S.hist, W = 320, Ht = 180, padL = 26, padR = 8, padT = 10, padB = 20;
+  const svg = $("chart"), H = S.range > 0 ? S.serverHist : S.hist, W = 320, Ht = 190, padL = 26, padR = 8, padT = 10, padB = 20;
   if(H.length < 2){
-    svg.innerHTML = '<text x="160" y="92" text-anchor="middle" fill="var(--muted)" font-size="12">' + (S.range>0 ? "이 기간의 기록이 아직 없어요" : "값이 쌓이면 그래프가 나와요") + '</text>';
+    svg.innerHTML = '<text x="160" y="96" text-anchor="middle" fill="var(--sub)" font-size="12">' + (S.range>0 ? "이 기간에 저장된 값이 없어요" : "값이 모이면 그래프가 그려져요") + '</text>';
     return;
   }
   const t0 = H[0].t, t1 = H[H.length-1].t, span = Math.max(1, t1-t0);
   const vals = H.flatMap(h => [h.i, h.o]).filter(v => v!=null);
-  const vmax = Math.max(40, Math.ceil(Math.max(...vals)/10)*10);
+  const vmax = Math.max(50, Math.ceil(Math.max(...vals)/10)*10);
   const x = t => padL + (W-padL-padR)*(t-t0)/span, y = v => Ht-padB - (Ht-padT-padB)*v/vmax;
   let g = "";
-  [0, vmax/2, vmax].forEach(v => { g += `<line x1="${padL}" x2="${W-padR}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${padL-6}" y="${y(v)+3}" text-anchor="end" fill="var(--muted)" font-size="9">${Math.round(v)}</text>`; });
-  g += `<line x1="${padL}" x2="${W-padR}" y1="${y(35)}" y2="${y(35)}" stroke="var(--bad)" stroke-width="1" stroke-dasharray="3 3" opacity=".7"/>`;
+  // 나쁨 구간(36 이상)을 옅은 색으로 칠함
+  g += `<rect x="${padL}" y="${padT}" width="${W-padL-padR}" height="${Math.max(0, y(35)-padT)}" fill="var(--bad)" opacity=".08"/>`;
+  [0, 15, 35, vmax].forEach(v => { g += `<line x1="${padL}" x2="${W-padR}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${padL-6}" y="${y(v)+3}" text-anchor="end" fill="var(--sub)" font-size="9">${Math.round(v)}</text>`; });
   const tl = t => (S.range > 24 ? (new Date(t).getMonth()+1) + "/" + new Date(t).getDate() + " " : "") + hhmm(t);
-  g += `<text x="${padL}" y="${Ht-4}" fill="var(--muted)" font-size="9">${tl(t0)}</text><text x="${W-padR}" y="${Ht-4}" text-anchor="end" fill="var(--muted)" font-size="9">${tl(t1)}</text>`;
+  g += `<text x="${padL}" y="${Ht-4}" fill="var(--sub)" font-size="9">${tl(t0)}</text><text x="${W-padR}" y="${Ht-4}" text-anchor="end" fill="var(--sub)" font-size="9">${tl(t1)}</text>`;
   const pts = k => H.filter(h => h[k]!=null).map(h => [x(h.t), y(h[k])]);
+  // 계단 없이 부드럽게 이어지는 선
+  const path = p => { if(p.length < 2) return ""; let d = "M" + p[0][0].toFixed(1) + "," + p[0][1].toFixed(1); for(let k=1;k<p.length;k++){ const [x0,y0]=p[k-1],[x1,y1]=p[k],mx=(x0+x1)/2; d += `C${mx.toFixed(1)},${y0.toFixed(1)} ${mx.toFixed(1)},${y1.toFixed(1)} ${x1.toFixed(1)},${y1.toFixed(1)}`; } return d; };
+  const line = (p, c, w) => p.length < 2 ? "" : `<path d="${path(p)}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
   const pi = pts("i"), po = pts("o");
-  if(pi.length > 1){
-    const area = "M" + pi.map(p => p[0].toFixed(1)+","+p[1].toFixed(1)).join("L") + `L${pi[pi.length-1][0].toFixed(1)},${Ht-padB}L${pi[0][0].toFixed(1)},${Ht-padB}Z`;
-    g += `<defs><linearGradient id="gi" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${cssVar("--primary")}" stop-opacity=".22"/><stop offset="1" stop-color="${cssVar("--primary")}" stop-opacity="0"/></linearGradient></defs><path d="${area}" fill="url(#gi)"/>`;
-  }
-  const line = (p, c, dash) => p.length < 2 ? "" : `<polyline points="${p.map(q => q[0].toFixed(1)+","+q[1].toFixed(1)).join(" ")}" fill="none" stroke="${c}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" ${dash?'stroke-dasharray="5 4"':''} vector-effect="non-scaling-stroke"/>`;
-  svg.innerHTML = g + line(po, "var(--coral)", true) + line(pi, "var(--primary)");
+  const dot = (p, c) => p.length ? `<circle cx="${p[p.length-1][0].toFixed(1)}" cy="${p[p.length-1][1].toFixed(1)}" r="3.5" fill="${c}"/>` : "";
+  svg.innerHTML = g + line(po, "var(--good)", 2) + line(pi, "var(--main)", 2.8) + dot(po, "var(--good)") + dot(pi, "var(--main)");
 }
 
-// ---------------- 창문 기록 목록 ----------------
+// ---------------- 창문 동작 내역 ----------------
 function renderEvents(){
   const ul = $("events"); ul.innerHTML = "";
   const list = S.serverEvents || S.events.map(e => ({t:e.t, pos:e.pos, mode:e.mode, reason:e.reason}));
-  $("eventsSide").textContent = S.serverEvents ? "서버 기록" : "앱을 연 뒤";
-  if(!list.length){ ul.innerHTML = '<li style="display:block"><p class="empty">아직 기록이 없어요.</p></li>'; return; }
+  $("eventsSide").textContent = S.serverEvents ? "서버 저장분" : "앱을 연 뒤";
+  if(!list.length){ ul.innerHTML = '<li><p class="empty">아직 내역이 없어요.</p></li>'; return; }
   list.slice(0, 20).forEach(e => {
-    const li = document.createElement("li");
-    const tm = document.createElement("time"); tm.textContent = hhmm(e.t);
-    const div = document.createElement("div");
-    const b = document.createElement("b"); b.textContent = "창문 " + (POS_SHORT[e.pos] || e.pos) + " · " + (e.mode==="manual" ? "직접 조작" : "자동");
+    const li = document.createElement("li"); li.dataset.pos = e.pos;
+    const tm = document.createElement("time"); tm.textContent = hhmm(e.t) + (e.mode==="manual" ? " · 수동" : " · 자동");
+    const b = document.createElement("b"); b.textContent = POS_SHORT[e.pos] || e.pos;
     const sp = document.createElement("span"); sp.textContent = e.reason || "";
-    div.append(b, sp); li.append(tm, div); ul.append(li);
+    li.append(tm, b, sp); ul.append(li);
   });
 }
 
@@ -641,7 +640,7 @@ function updateRangeUI(){
   });
   $("rangeBtns").hidden = !hasApi;
   if(!hasApi) S.range = 0;
-  $("chartTitle").textContent = S.range===0 ? "앱을 연 뒤 30분" : S.range===168 ? "지난 7일" : "지난 " + S.range + "시간";
+  $("chartTitle").textContent = S.range===0 ? "앱을 연 뒤 30분" : S.range===168 ? "최근 일주일" : S.range===24 ? "최근 하루" : "최근 " + S.range + "시간";
   if(!$("chartNote").dataset.busy) $("chartNote").textContent = hasApi ? (S.range>0 ? "서버에 저장된 기록이에요." : "") : "AWS 서버에 연결하면 지난 기록도 볼 수 있어요.";
 }
 async function loadHistory(hours){
@@ -689,11 +688,13 @@ function sendCmd(cmd, msg){
   toast(msg);
   render();
 }
-$("btnOpen").onclick  = () => sendCmd("open",  "열기 명령을 보냈어요 · 직접 조작으로 바뀌어요");
-$("btnClose").onclick = () => sendCmd("close", "닫기 명령을 보냈어요 · 직접 조작으로 바뀌어요");
-$("btnStop").onclick  = () => sendCmd("stop",  "정지 명령을 보냈어요");
-$("modeAuto").onclick   = () => { if(publish("window/mode",{mode:"auto"},true)){ S.mode="auto"; S.pending=null; toast("자동 관리로 바꿨어요"); render(); } };
-$("modeManual").onclick = () => { if(publish("window/mode",{mode:"manual"},true)){ S.mode="manual"; toast("직접 조작으로 바꿨어요"); render(); } };
+$("btnOpen").onclick  = () => sendCmd("open",  "열기 전송 · 자동 운전 꺼짐");
+$("btnClose").onclick = () => sendCmd("close", "닫기 전송 · 자동 운전 꺼짐");
+$("btnStop").onclick  = () => sendCmd("stop",  "멈춤 전송");
+$("modeSwitch").onclick = () => {
+  const on = $("modeSwitch").getAttribute("aria-checked") !== "true";
+  if(publish("window/mode", {mode: on ? "auto" : "manual"}, true)){ S.mode = on ? "auto" : "manual"; if(on) S.pending = null; toast(on ? "자동 운전 켜짐" : "자동 운전 꺼짐"); render(); }
+};
 
 // ---------------- 자동 규칙 ----------------
 const CFG_KEYS = ["outPm25Max","pmDiffOpen","pmDiffClose","vocOpen","vocClose","tempMin","tempMax","minIntervalSec"];
@@ -757,7 +758,7 @@ $("connPill").onclick = () => { go("settings"); $("connDetails").open = true; };
 
 // ---------------- 데모 모드 ----------------
 function startDemo(){
-  disconnect(); resetData(); demo = true; setPill("demo","데모 모드"); $("connBanner").hidden = true;
+  disconnect(); resetData(); demo = true; setPill("demo","데모"); $("connBanner").hidden = true;
   let t = 0, winPos = "closed", moveUntil = 0, target = null;
   S.status = {indoor:"online", outdoor:"online", window:"online"};
   const D = {mode:"auto", reason:"시작"};
@@ -794,7 +795,7 @@ function startDemo(){
   }
   for(let k=60;k>0;k--){ const tt = Date.now()-k*30000; S.hist.push({t:tt, i:+(28+16*Math.sin((t-k)/9)+Math.random()*3).toFixed(1), o:Math.round(14+4*Math.sin((t-k)/14)+Math.random()*2)}); }
   tick(); demoTimer = setInterval(() => tick(false), 1000);
-  updateRangeUI(); toast("데모 모드: 가짜 데이터예요");
+  updateRangeUI(); toast("데모 실행 중 · 가짜 데이터");
 }
 $("btnDemo").onclick = () => { startDemo(); go("home"); };
 $("demoBtn").onclick = () => startDemo();
