@@ -3,8 +3,8 @@
   "short_name": "Air-Sync",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#edf2f1",
-  "theme_color": "#0f7666",
+  "background_color": "#f7f5f1",
+  "theme_color": "#5b46d6",
   "lang": "ko",
   "icons": [
     {

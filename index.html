@@ -1,501 +1,831 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Air-Sync</title>
-  <!-- 9단계: 휴대폰 홈 화면에 앱처럼 추가 -->
-  <meta name="theme-color" content="#0f7666">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Air-Sync">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" href="icon-192.png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Sora:wght@600;700&display=swap">
-  <style>
-    /* 1) 색 변수: 밝은 화면 */
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f5f1" id="themeColor">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Air-Sync">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Air-Sync</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&family=Outfit:wght@500;600;700&display=swap">
+<script>
+  // 화면이 그려지기 전에 테마를 먼저 적용 (깜빡임 방지)
+  try { const t = localStorage.getItem("airsync.theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+<style>
+/* =========================================================
+   색 변수: 밝은 테마
+   ========================================================= */
 :root{
-  --bg:#edf2f1; --surface:#fff; --sunk:#f4f7f6; --ink:#13201d; --muted:#5a6a66; --line:#d6e0dd;
-  --accent:#0f7666; --accent-ink:#fff;
-  --good:#1f73d6; --ok:#169c55; --bad:#d98200; --vbad:#d32f3a; --none:#8b9794;  /* 미세먼지 등급 색 */
+  --canvas:#f7f5f1; --paper:#ffffff; --sunk:#f1eee9; --ink:#24212f; --muted:#6c6778; --line:#e7e2ea;
+  --primary:#5b46d6; --primary-ink:#ffffff; --primary-soft:#ece8ff;
+  --coral:#ff8f6b; --coral-soft:#ffe8de; --coral-ink:#8f3a22;
+  --hero:#262139; --hero-2:#322c4a; --hero-ink:#f4f1fb; --hero-muted:#b9b2cf;
+  --good:#2f7be0; --ok:#1f9d5b; --bad:#e08a00; --vbad:#d8404a; --none:#9b96a6;
+  --glass:#cfe4f6; --shadow:0 1px 2px rgba(36,33,47,.05),0 10px 30px rgba(36,33,47,.06);
+  --sans:"Noto Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --num:"Outfit","Noto Sans KR",system-ui,sans-serif;
+  color-scheme:light;
 }
-/* 2) 휴대폰이 다크 모드일 때 변수 값만 바꿈 */
+/* 어두운 테마: 휴대폰 설정이 다크 모드이고 사용자가 '밝게'를 고르지 않았을 때 */
 @media (prefers-color-scheme: dark){
-  :root{ --bg:#0f1514; --surface:#18201f; --sunk:#121918; --ink:#e3ebe9; --muted:#97a7a3; --line:#2a3533;
-         --accent:#36c2a8; --accent-ink:#06211c; --good:#5aa2ff; --ok:#3fcf82; --bad:#f2a531; --vbad:#ff5f68; }
+  :root:not([data-theme="light"]){
+    --canvas:#121119; --paper:#1c1a26; --sunk:#16141f; --ink:#ece9f4; --muted:#a19bb3; --line:#2c2938;
+    --primary:#8f7dff; --primary-ink:#130f2b; --primary-soft:#2a2550;
+    --coral:#ff9a7a; --coral-soft:#3a2420; --coral-ink:#ffc2ad;
+    --hero:#231f36; --hero-2:#2d2844; --hero-ink:#f4f1fb; --hero-muted:#ada6c6;
+    --good:#66a6ff; --ok:#43cf86; --bad:#f4ae3d; --vbad:#ff6b73; --none:#6f6a7d;
+    --glass:#2c4a63; --shadow:none; color-scheme:dark;
+  }
+}
+/* 사용자가 '어둡게'를 고른 경우 */
+:root[data-theme="dark"]{
+  --canvas:#121119; --paper:#1c1a26; --sunk:#16141f; --ink:#ece9f4; --muted:#a19bb3; --line:#2c2938;
+  --primary:#8f7dff; --primary-ink:#130f2b; --primary-soft:#2a2550;
+  --coral:#ff9a7a; --coral-soft:#3a2420; --coral-ink:#ffc2ad;
+  --hero:#231f36; --hero-2:#2d2844; --hero-ink:#f4f1fb; --hero-muted:#ada6c6;
+  --good:#66a6ff; --ok:#43cf86; --bad:#f4ae3d; --vbad:#ff6b73; --none:#6f6a7d;
+  --glass:#2c4a63; --shadow:none; color-scheme:dark;
 }
 
-/* 3) 기본 */
-*{ box-sizing:border-box }
-[hidden]{ display:none !important }
-body{ margin:0; background:var(--bg); color:var(--ink);
-      font-family:"Noto Sans KR", system-ui, sans-serif; font-size:15px; }
-.app{ max-width:520px; margin:0 auto; padding:12px 16px 96px; display:grid; gap:14px; }
-.view{ display:grid; gap:14px; }
+/* =========================================================
+   기본 틀
+   ========================================================= */
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--canvas);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-tap-highlight-color:transparent;transition:background .25s,color .25s}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+[hidden]{display:none!important}
+.app{max-width:480px;margin:0 auto;min-height:100%;padding:0 max(16px,env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.view{display:grid;gap:14px;padding-bottom:8px}
 
-/* 4) 상태바와 연결 표시 */
-.top{ display:flex; justify-content:space-between; align-items:center; }
-.brand{ font-family:"Sora", sans-serif; font-weight:700; font-size:20px; }
-.pill{ display:inline-flex; align-items:center; gap:6px; font-size:12.5px; padding:5px 10px;
-       border-radius:999px; background:var(--surface); border:1px solid var(--line); }
-.pill i{ width:8px; height:8px; border-radius:50%; background:var(--none); }
-.pill[data-s="on"] i{ background:var(--ok) }    .pill[data-s="try"] i{ background:var(--bad) }
-.pill[data-s="off"] i{ background:var(--vbad) } .pill[data-s="demo"] i{ background:var(--good) }
+/* 상단 */
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;
+     padding:calc(12px + env(safe-area-inset-top)) 2px 12px;background:var(--canvas)}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--num);font-weight:700;font-size:22px;letter-spacing:-.02em}
+.brand svg{width:30px;height:30px}
+.brand b{color:var(--coral)}
+.pill{display:inline-flex;align-items:center;gap:7px;border:0;background:none;font-size:13px;font-weight:700;color:var(--ink);padding:6px 4px}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--none)}
+.pill[data-s="on"] i{background:var(--ok)} .pill[data-s="try"] i{background:var(--bad);animation:blink 1s infinite}
+.pill[data-s="off"] i{background:var(--vbad)} .pill[data-s="demo"] i{background:var(--primary)}
+.pill svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2}
+@keyframes blink{50%{opacity:.3}}
 
-/* 5) 카드 */
-.card{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px; display:grid; gap:12px; }
-.card h2{ margin:0; font-size:13px; font-weight:500; color:var(--muted); display:flex; justify-content:space-between; }
-.banner{ border-radius:12px; padding:12px 14px; background:var(--sunk); border:1px solid var(--line); }
-.pos{ font-size:26px; font-weight:700; margin:0; }
-.reason{ color:var(--muted); margin:0; }
+.page-head{padding:8px 2px 2px}
+.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.14em;color:var(--muted);margin:0 0 4px}
+.page-head h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em}
+.page-head p{margin:4px 0 0;color:var(--muted);font-size:14px}
 
-/* 6) 버튼 */
-.seg, .btns{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.btns{ grid-template-columns:1fr auto 1fr; }
-.btn, .seg button{ font:inherit; font-weight:700; min-height:48px; border-radius:12px;
-       border:1px solid var(--line); background:var(--surface); color:var(--ink); }
-.btn.primary{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
-.seg button[aria-pressed="true"]{ background:var(--accent); color:var(--accent-ink); }
-button:disabled{ opacity:.45; }
+/* 카드 */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow);display:grid;gap:14px;min-width:0}
+.card-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.card-h h2{margin:0;font-size:15px;font-weight:800}
+.card-h h2 small{font-weight:500;color:var(--muted);font-size:12.5px;margin-left:6px}
+.card-h .side{font-size:12.5px;color:var(--muted)}
 
-/* 7) 실내·실외 카드 */
-.pair{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-.big b{ font-family:"Sora", sans-serif; font-size:38px; font-weight:600; }
-.big span, .foot{ font-size:12px; color:var(--muted); }
-.chip{ font-size:12px; font-weight:700; padding:3px 9px; border-radius:999px; color:#fff; background:var(--none); }
-.chip[data-g="good"]{ background:var(--good) } .chip[data-g="ok"]{ background:var(--ok) }
-.chip[data-g="bad"]{ background:var(--bad) }   .chip[data-g="vbad"]{ background:var(--vbad) }
-dl{ margin:0; display:grid; grid-template-columns:auto 1fr; gap:4px 10px; }
-dt{ color:var(--muted) } dd{ margin:0; text-align:right; }
-.chart{ width:100%; height:150px; }
+/* 알림 띠 */
+.banner{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-radius:16px;padding:12px 14px;font-size:14px;font-weight:500;border:1px solid var(--line);background:var(--paper)}
+.banner.rain{background:color-mix(in srgb,var(--good) 13%,var(--paper));border-color:color-mix(in srgb,var(--good) 35%,var(--line))}
+.banner.err{background:color-mix(in srgb,var(--vbad) 12%,var(--paper));border-color:color-mix(in srgb,var(--vbad) 35%,var(--line))}
+.banner .btn{min-height:36px;padding:0 14px;font-size:13px}
 
-/* 8) 입력칸, 기록 */
-label{ display:grid; gap:4px; font-size:14px; }
-input[type=number], input[type=text], input[type=url], input[type=password]{
-  font:inherit; font-size:16px; padding:11px 12px; border-radius:10px;
-  border:1px solid var(--line); background:var(--sunk); color:var(--ink); }
-.log{ font-size:11.5px; max-height:220px; overflow:auto; white-space:pre-wrap; color:var(--muted); }
+/* =========================================================
+   홈: 창문 히어로 카드
+   ========================================================= */
+.hero{background:var(--hero);color:var(--hero-ink);border-radius:26px;overflow:hidden;box-shadow:var(--shadow)}
+.hero-top{padding:20px 20px 18px;display:grid;grid-template-columns:1fr 112px;gap:12px;align-items:center}
+.hero-label{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--hero-muted);margin:0 0 10px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.22);color:var(--hero-ink)}
+.chip.manual{background:var(--coral);border-color:var(--coral);color:#2b1209}
+.hero h2{margin:0;font-size:32px;word-break:keep-all;line-height:1.2;font-weight:800;letter-spacing:-.02em}
+.hero .reason{margin:8px 0 0;color:var(--hero-muted);font-size:14px;min-height:21px}
+.hero-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 20px;background:var(--hero-2);font-size:13.5px;color:var(--hero-muted)}
+.hero-foot b{color:var(--hero-ink);font-weight:500}
+.spin{width:14px;height:14px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;display:inline-block;vertical-align:-2px;margin-right:6px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* 9) 아래 고정 탭바와 알림 */
-.tabs{ position:fixed; left:0; right:0; bottom:0; display:grid; grid-template-columns:repeat(3,1fr);
-       background:var(--surface); border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom); }
-.tab{ border:0; background:none; color:var(--muted); font:inherit; padding:14px 4px; }
-.tab[aria-current="page"]{ color:var(--accent); font-weight:700; }
-.toast{ position:fixed; left:50%; bottom:90px; transform:translateX(-50%); background:var(--ink); color:var(--bg);
-        padding:10px 16px; border-radius:999px; opacity:0; transition:opacity .25s; pointer-events:none; }
-.toast.show{ opacity:1 }
-  </style>
+/* 창문 그림 */
+.winart{width:112px;height:112px}
+.winart .frame{fill:none;stroke:var(--hero-muted);stroke-width:4;stroke-linejoin:round}
+.winart .sky{fill:#3b3460}
+.winart .glass{fill:var(--glass);opacity:.9}
+.winart .sash{fill:none;stroke:var(--hero-ink);stroke-width:3}
+.winart .pane{transition:transform 1.1s cubic-bezier(.4,0,.2,1)}
+.winart .air{fill:none;stroke:var(--coral);stroke-width:3;stroke-linecap:round;opacity:0;transition:opacity .6s}
+.winart[data-pos="open"] .air,.winart[data-pos="opening"] .air{opacity:1}
+.winart[data-pos="error"] .frame{stroke:var(--vbad)}
+.winart .drop{fill:#8fc2ff;opacity:0;transition:opacity .4s}
+.winart[data-rain="1"] .drop{opacity:1;animation:fall 1.2s linear infinite}
+@keyframes fall{from{transform:translateY(-6px)}to{transform:translateY(8px);opacity:0}}
+
+/* 공기 카드 */
+.air{display:grid;grid-template-columns:1fr 34px 1fr;align-items:center;gap:6px}
+.side-air .lab{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700}
+.side-air .lab span{display:flex;align-items:center;gap:6px}
+.side-air .lab i{width:8px;height:8px;border-radius:50%}
+.grade{font-style:normal;font-size:12px;font-weight:700;color:var(--muted)}
+.bignum{font-family:var(--num);font-size:46px;font-weight:600;line-height:1.05;letter-spacing:-.03em;margin:6px 0 2px}
+.side-air .sub{font-size:13px;color:var(--muted)}
+.swap{width:26px;height:26px;stroke:var(--muted);fill:none;stroke-width:2;justify-self:center}
+.air-more{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mini{background:var(--sunk);border-radius:14px;padding:10px 12px}
+.mini dt{font-size:12px;color:var(--muted)}
+.mini dd{margin:2px 0 0;font-family:var(--num);font-weight:600;font-size:17px}
+.compare{margin:0;padding-top:12px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+.stale .bignum{opacity:.45}
+
+/* 조작 */
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:18px;background:var(--primary-soft)}
+.seg button{border:1.5px solid transparent;background:none;border-radius:14px;min-height:46px;font-weight:700;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:8px}
+.seg button[aria-pressed="true"]{background:var(--paper);border-color:var(--primary);color:var(--primary)}
+.seg svg,.ctl svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ctls{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ctl{min-height:64px;border-radius:18px;border:1.5px solid var(--line);background:var(--paper);font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .12s,background .2s,border-color .2s,box-shadow .2s}
+.ctl:active:not(:disabled){transform:scale(.97)}
+.ctl.open{background:var(--primary);border-color:var(--primary);color:var(--primary-ink)}
+.ctl.stop{background:var(--coral-soft);border-color:transparent;color:var(--coral-ink)}
+.ctl:disabled{opacity:.4}
+.ctl[data-active="1"]{box-shadow:0 0 0 3px var(--canvas),0 0 0 6px var(--primary)}
+.ctl.stop[data-active="1"]{box-shadow:0 0 0 3px var(--canvas),0 0 0 6px var(--coral)}
+.hint{margin:0;text-align:center;font-size:13px;color:var(--muted)}
+
+.btn{min-height:46px;border-radius:14px;border:1.5px solid var(--line);background:var(--paper);font-weight:700;padding:0 16px}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:var(--primary-ink)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.linkcard{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;border-radius:16px;border:1px solid var(--line);background:var(--paper);font-weight:700;font-size:14px}
+.linkcard svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+
+/* 그래프 */
+.range{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;border-radius:14px;background:var(--sunk)}
+.range button{border:0;background:none;border-radius:10px;min-height:34px;font-size:13px;font-weight:700;color:var(--muted)}
+.range button[aria-pressed="true"]{background:var(--paper);color:var(--ink);box-shadow:var(--shadow)}
+.chart{width:100%;height:180px;display:block}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px}
+.note{margin:0;font-size:12.5px;color:var(--muted)}
+.events{list-style:none;margin:0;padding:0;display:grid}
+.events li{display:grid;grid-template-columns:44px 1fr;gap:8px;padding:11px 0;border-top:1px solid var(--line)}
+.events li:first-child{border-top:0}
+.events time{font-family:var(--num);font-size:13px;color:var(--muted)}
+.events b{display:block;font-size:14px}
+.events span{font-size:13px;color:var(--muted)}
+.empty{color:var(--muted);font-size:14px;margin:0}
+
+/* 설정 */
+.field{display:grid;gap:6px}
+.field label{font-size:13.5px;font-weight:700}
+.field small{font-size:12px;color:var(--muted)}
+.field input[type=text],.field input[type=url],.field input[type=password],.field input[type=number]{font:inherit;font-size:16px;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--sunk);color:var(--ink);width:100%;min-width:0}
+.field input:focus{outline:none;border-color:var(--primary)}
+.inline{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.inline .unit{font-size:13px;color:var(--muted);white-space:nowrap}
+.check{display:flex;gap:10px;align-items:center;font-size:14px}
+.check input{width:20px;height:20px;accent-color:var(--primary)}
+.theme3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.theme3 button{border:1.5px solid var(--line);background:var(--paper);border-radius:16px;padding:10px 6px;display:grid;justify-items:center;gap:6px;font-size:13px;font-weight:700}
+.theme3 button[aria-pressed="true"]{border-color:var(--primary);color:var(--primary);background:var(--primary-soft)}
+.swatch{width:46px;height:30px;border-radius:9px;border:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;overflow:hidden}
+.units{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.unit-st{background:var(--sunk);border-radius:14px;padding:10px;text-align:center;font-size:13px}
+.unit-st b{display:block;font-size:12px;color:var(--muted);font-weight:500}
+.unit-st span{font-weight:700}
+details summary{cursor:pointer;font-weight:800;font-size:15px;list-style:none;display:flex;justify-content:space-between}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"＋";color:var(--muted)}
+details[open] summary::after{content:"－"}
+details[open] summary{margin-bottom:12px}
+.log{margin:0;font-size:11.5px;max-height:240px;overflow:auto;white-space:pre-wrap;word-break:break-all;color:var(--muted);background:var(--sunk);border-radius:12px;padding:10px}
+
+/* 아래 탭 */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:8px max(16px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.tabs div{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tab{border:0;background:none;border-radius:16px;padding:8px 4px;display:grid;justify-items:center;gap:2px;font-size:12px;font-weight:700;color:var(--muted)}
+.tab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-current="page"]{background:var(--primary-soft);color:var(--primary)}
+
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--ink);color:var(--canvas);padding:11px 16px;border-radius:14px;font-size:14px;font-weight:500;max-width:calc(100% - 32px);transition:.25s;z-index:9}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
 </head>
 <body>
 <div class="app">
 
-  <!-- 상태바 -->
   <header class="top">
-    <div class="brand">Air-Sync</div>
-    <span class="pill" id="connPill" data-s="off"><i></i><span id="connText">연결 안 됨</span></span>
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 11h13a4 4 0 1 0-4-4M5 16h18a4 4 0 1 1-4 4M5 21h8" fill="none" stroke="var(--primary)" stroke-width="2.6" stroke-linecap="round"/></svg>
+      <span>Air-Sync<b>.</b></span>
+    </div>
+    <button class="pill" id="connPill" data-s="off" type="button" aria-label="연결 설정 열기"><i></i><span id="connText">연결 안 됨</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
   </header>
 
-  <!-- 화면 1: 홈 -->
+  <!-- ===================== 홈 ===================== -->
   <main id="view-home" class="view">
-    <div class="banner rain" id="rainBanner" hidden>실외에서 비가 감지되어 창문을 닫습니다.</div>
-    <div class="banner" id="connBanner" hidden>
-      <span id="connBannerText">브로커에 연결되지 않았습니다.</span>
-      <button class="btn" id="demoBtn" type="button">데모로 보기</button>
-    </div>
+    <div class="banner rain" id="rainBanner" hidden>☂ 실외에서 비가 감지되어 창문을 닫습니다.</div>
+    <div class="banner err" id="errBanner" hidden><span id="errText">창문 오류</span></div>
+    <div class="banner" id="connBanner" hidden><span id="connBannerText">브로커에 연결되지 않았습니다.</span><button class="btn" id="demoBtn" type="button">데모로 보기</button></div>
 
-    <section class="card">
-      <h2>창문</h2>
-      <p class="pos" id="posText">상태 모름</p>
-      <p class="reason" id="reasonText">창문 유닛의 응답을 기다리는 중</p>
-      <div class="seg">
-        <button type="button" id="modeAuto">자동</button>
-        <button type="button" id="modeManual">수동</button>
+    <section class="hero" aria-label="창문 상태">
+      <div class="hero-top">
+        <div>
+          <p class="hero-label">창문 <span class="chip" id="modeChip">자동 관리</span></p>
+          <h2 id="posText">상태 모름</h2>
+          <p class="reason" id="reasonText">창문 유닛의 응답을 기다리는 중</p>
+        </div>
+        <svg class="winart" id="winArt" viewBox="0 0 112 112" data-pos="unknown" aria-hidden="true">
+          <rect x="14" y="14" width="84" height="84" rx="10" class="sky"/>
+          <g class="drops"><circle class="drop" cx="34" cy="30" r="2"/><circle class="drop" cx="62" cy="22" r="2"/><circle class="drop" cx="84" cy="34" r="2"/></g>
+          <g class="pane" id="pane"><rect x="20" y="20" width="38" height="72" rx="4" class="glass"/><rect x="20" y="20" width="38" height="72" rx="4" class="sash"/></g>
+          <rect x="56" y="20" width="36" height="72" rx="4" class="glass" opacity=".55"/>
+          <rect x="56" y="20" width="36" height="72" rx="4" class="sash"/>
+          <path class="air" d="M64 44h18a5 5 0 1 0-5-5M64 56h22a5 5 0 1 1-5 5M64 68h10"/>
+          <rect x="14" y="14" width="84" height="84" rx="10" class="frame"/>
+        </svg>
       </div>
-      <div class="btns">
-        <button type="button" class="btn primary" id="btnOpen">열기</button>
-        <button type="button" class="btn" id="btnStop">정지</button>
-        <button type="button" class="btn" id="btnClose">닫기</button>
-      </div>
+      <div class="hero-foot"><span id="heroFoot">창문 유닛 기다리는 중</span><span id="winAge"></span></div>
     </section>
 
-    <section class="card"><p id="compareText">실내와 실외 값을 받으면 비교해 드립니다.</p></section>
+    <section class="card" aria-label="지금 공기">
+      <div class="card-h"><h2>지금 공기<small>PM2.5</small></h2><span class="side">µg/m³</span></div>
+      <div class="air">
+        <div class="side-air" id="inSide">
+          <div class="lab"><span><i style="background:var(--primary)"></i>실내</span><em class="grade" id="inGrade">-</em></div>
+          <div class="bignum" id="inPm25">--</div>
+          <div class="sub" id="inSub">--°C · --%</div>
+        </div>
+        <svg class="swap" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h15l-4-4M20 16H5l4 4"/></svg>
+        <div class="side-air" id="outSide">
+          <div class="lab"><span><i style="background:var(--coral)"></i>실외</span><em class="grade" id="outGrade">-</em></div>
+          <div class="bignum" id="outPm25">--</div>
+          <div class="sub" id="outSub">--°C · --%</div>
+        </div>
+      </div>
+      <dl class="air-more">
+        <div class="mini"><dt>실내 VOC</dt><dd id="inVoc">--</dd></div>
+        <div class="mini"><dt>실외 PM10</dt><dd id="outPm10">--</dd></div>
+        <div class="mini"><dt>비</dt><dd id="outRain">--</dd></div>
+      </dl>
+      <p class="compare" id="compareText">실내와 실외 값을 받으면 비교해 드립니다.</p>
+    </section>
 
-    <div class="pair">
-      <section class="card">
-        <h2>실내 <span class="chip" id="inGrade">-</span></h2>
-        <div class="big"><b id="inPm25">--</b><span>PM2.5 µg/m³</span></div>
-        <dl>
-          <dt>PM10</dt><dd id="inPm10">--</dd>
-          <dt>온도</dt><dd id="inTemp">--</dd>
-          <dt>습도</dt><dd id="inHum">--</dd>
-          <dt>VOC 지수</dt><dd id="inVoc">--</dd>
-        </dl>
-        <div class="foot" id="inAge">기다리는 중</div>
-      </section>
-      <section class="card">
-        <h2>실외 <span class="chip" id="outGrade">-</span></h2>
-        <div class="big"><b id="outPm25">--</b><span>PM2.5 µg/m³</span></div>
-        <dl>
-          <dt>PM10</dt><dd id="outPm10">--</dd>
-          <dt>온도</dt><dd id="outTemp">--</dd>
-          <dt>습도</dt><dd id="outHum">--</dd>
-          <dt>비</dt><dd id="outRain">--</dd>
-        </dl>
-        <div class="foot" id="outAge">기다리는 중</div>
-      </section>
+    <section class="card" aria-label="창문 조작">
+      <div class="seg" role="group" aria-label="모드">
+        <button type="button" id="modeAuto" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>자동 관리</button>
+        <button type="button" id="modeManual" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>직접 조작</button>
+      </div>
+      <div class="ctls">
+        <button type="button" class="ctl open" id="btnOpen"><svg viewBox="0 0 24 24"><path d="M4 4h10v16H4zM14 12h7M18 9l3 3-3 3"/></svg>열기</button>
+        <button type="button" class="ctl stop" id="btnStop"><svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"/></svg>정지</button>
+        <button type="button" class="ctl" id="btnClose"><svg viewBox="0 0 24 24"><path d="M10 4h10v16H10zM3 12h7M7 9l3 3-3 3"/></svg>닫기</button>
+      </div>
+      <p class="hint" id="modeHint">자동 관리: 실내·실외 공기를 비교해 창문이 스스로 움직여요.</p>
+    </section>
+
+    <div class="row2">
+      <button class="linkcard" type="button" data-go="history"><svg viewBox="0 0 24 24"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg>기록 보기</button>
+      <button class="linkcard" type="button" data-go="settings" data-scroll="rulesCard"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>자동 규칙</button>
     </div>
+  </main>
 
+  <!-- ===================== 기록 ===================== -->
+  <main id="view-history" class="view" hidden>
+    <div class="page-head"><p class="eyebrow">HISTORY</p><h1>공기의 기록</h1><p>미세먼지 변화와 창문이 움직인 기록이에요.</p></div>
     <section class="card">
-      <h2>PM2.5 흐름 (30분)</h2>
-      <svg class="chart" id="chart" viewBox="0 0 320 150" preserveAspectRatio="none"></svg>
+      <div class="card-h"><h2>PM2.5 변화</h2><span class="side" id="chartTitle">앱을 연 뒤 30분</span></div>
+      <div class="range" id="rangeBtns">
+        <button type="button" data-h="0" aria-pressed="true">실시간</button>
+        <button type="button" data-h="6">6시간</button>
+        <button type="button" data-h="24">24시간</button>
+        <button type="button" data-h="168">7일</button>
+      </div>
+      <svg class="chart" id="chart" viewBox="0 0 320 180" preserveAspectRatio="none" role="img" aria-label="실내와 실외 PM2.5 변화"></svg>
+      <div class="legend"><span><i style="background:var(--primary)"></i>실내</span><span><i style="background:var(--coral)"></i>실외</span><span><i style="background:var(--bad);height:0;border-top:2px dashed var(--bad)"></i>나쁨 기준 35</span></div>
+      <p class="note" id="chartNote"></p>
+    </section>
+    <section class="card">
+      <div class="card-h"><h2>창문 기록</h2><span class="side" id="eventsSide">최근 20개</span></div>
+      <ul class="events" id="events"></ul>
     </section>
   </main>
 
-  <!-- 화면 2: 자동 규칙 -->
-  <main id="view-rules" class="view" hidden>
-    <section class="card">
-      <h2>자동 규칙</h2>
-      <label>실외 PM2.5가 이보다 나쁘면 닫기 <input type="number" id="c-outPm25Max"></label>
-      <label>실내가 실외보다 이만큼 탁하면 열기 <input type="number" id="c-pmDiffOpen"></label>
-      <label>차이가 이만큼 줄면 닫기 <input type="number" id="c-pmDiffClose"></label>
-      <label>VOC 지수가 이 이상이면 열기 <input type="number" id="c-vocOpen"></label>
-      <label>VOC 지수가 이 이하이면 닫기 <input type="number" id="c-vocClose"></label>
-      <label>실외 최저 온도 <input type="number" id="c-tempMin"></label>
-      <label>실외 최고 온도 <input type="number" id="c-tempMax"></label>
-      <label>최소 대기 시간(초) <input type="number" id="c-minIntervalSec"></label>
-      <label><input type="checkbox" id="c-rainCloseInManual"> 수동 모드에서도 비가 오면 닫기</label>
-      <button type="button" class="btn primary" id="cfgSave">보드에 저장</button>
-    </section>
-  </main>
+  <!-- ===================== 설정 ===================== -->
+  <main id="view-settings" class="view" hidden>
+    <div class="page-head"><p class="eyebrow">SETTINGS</p><h1>설정</h1><p>화면, 연결, 자동 규칙을 바꿀 수 있어요.</p></div>
 
-  <!-- 화면 3: 연결 -->
-  <main id="view-conn" class="view" hidden>
     <section class="card">
-      <h2>브로커 연결</h2>
-      <label>브로커 주소 <input type="url" id="s-url"></label>
-      <label>토픽 앞부분 <input type="text" id="s-base"></label>
-      <label>아이디 <input type="text" id="s-user"></label>
-      <label>비밀번호 <input type="password" id="s-pass"></label>
-      <button type="button" class="btn primary" id="btnConnect">저장하고 연결</button>
-      <button type="button" class="btn" id="btnDemo">데모 모드</button>
+      <div class="card-h"><h2>화면 테마</h2></div>
+      <div class="theme3" id="themeBtns">
+        <button type="button" data-t="system"><span class="swatch"><span style="background:#f7f5f1"></span><span style="background:#121119"></span></span>기기 설정</button>
+        <button type="button" data-t="light"><span class="swatch" style="background:#f7f5f1"></span>밝게</button>
+        <button type="button" data-t="dark"><span class="swatch" style="background:#121119"></span>어둡게</button>
+      </div>
     </section>
+
     <section class="card">
-      <h2>받은 메시지</h2>
-      <pre class="log" id="log">아직 없음</pre>
+      <div class="card-h"><h2>유닛 연결 상태</h2></div>
+      <div class="units">
+        <div class="unit-st"><b>실내</b><span id="stIndoor">모름</span></div>
+        <div class="unit-st"><b>실외</b><span id="stOutdoor">모름</span></div>
+        <div class="unit-st"><b>창문</b><span id="stWindow">모름</span></div>
+      </div>
+    </section>
+
+    <section class="card" id="connCard">
+      <details id="connDetails">
+        <summary>브로커 연결</summary>
+        <div class="view">
+          <div class="field"><label for="s-url">브로커 주소</label><input type="url" id="s-url" autocomplete="off" spellcheck="false"><small>공개 브로커: wss://broker.hivemq.com:8884/mqtt · AWS 서버: wss://서버주소/mqtt</small></div>
+          <div class="field"><label for="s-base">토픽 앞부분</label><input type="text" id="s-base" autocomplete="off" autocapitalize="off" spellcheck="false"><small>보드 config.h 의 MQTT_BASE 와 똑같이</small></div>
+          <div class="field"><label for="s-user">아이디</label><input type="text" id="s-user" autocomplete="off" autocapitalize="off"></div>
+          <div class="field"><label for="s-pass">비밀번호</label><input type="password" id="s-pass" autocomplete="off"><small>이 브라우저에만 저장됩니다</small></div>
+          <div class="row2"><button type="button" class="btn" id="btnDisconnect">끊기</button><button type="button" class="btn primary" id="btnConnect">저장하고 연결</button></div>
+          <button type="button" class="btn" id="btnDemo">데모 모드 (가짜 데이터로 보기)</button>
+        </div>
+      </details>
+    </section>
+
+    <section class="card" id="rulesCard">
+      <details id="rulesDetails">
+        <summary>자동 환기 규칙</summary>
+        <div class="view">
+          <div class="field"><label for="c-outPm25Max">실외 PM2.5가 이보다 나쁘면 닫기</label><div class="inline"><input type="number" id="c-outPm25Max" inputmode="decimal"><span class="unit">µg/m³</span></div><small>환경부 기준 36부터 "나쁨"</small></div>
+          <div class="field"><label for="c-pmDiffOpen">실내가 실외보다 이만큼 탁하면 열기</label><div class="inline"><input type="number" id="c-pmDiffOpen" inputmode="decimal"><span class="unit">µg/m³ 차이</span></div></div>
+          <div class="field"><label for="c-pmDiffClose">차이가 이만큼 줄면 닫기</label><div class="inline"><input type="number" id="c-pmDiffClose" inputmode="decimal"><span class="unit">µg/m³ 차이</span></div></div>
+          <div class="field"><label for="c-vocOpen">실내 VOC 지수가 이 이상이면 열기</label><div class="inline"><input type="number" id="c-vocOpen" inputmode="numeric"><span class="unit">평소 100</span></div></div>
+          <div class="field"><label for="c-vocClose">VOC 지수가 이 이하이면 닫기 가능</label><div class="inline"><input type="number" id="c-vocClose" inputmode="numeric"><span class="unit">지수</span></div></div>
+          <div class="row2">
+            <div class="field"><label for="c-tempMin">실외 최저 온도</label><div class="inline"><input type="number" id="c-tempMin" inputmode="decimal"><span class="unit">°C</span></div></div>
+            <div class="field"><label for="c-tempMax">실외 최고 온도</label><div class="inline"><input type="number" id="c-tempMax" inputmode="decimal"><span class="unit">°C</span></div></div>
+          </div>
+          <div class="field"><label for="c-minIntervalSec">자동으로 움직인 뒤 최소 대기 시간</label><div class="inline"><input type="number" id="c-minIntervalSec" inputmode="numeric"><span class="unit">초</span></div></div>
+          <label class="check"><input type="checkbox" id="c-rainCloseInManual">직접 조작 중에도 비가 오면 닫기</label>
+          <div class="row2"><button type="button" class="btn" id="cfgReset">기본값</button><button type="button" class="btn primary" id="cfgSave">보드에 저장</button></div>
+        </div>
+      </details>
+    </section>
+
+    <section class="card">
+      <details>
+        <summary>받은 메시지 (최근 30개)</summary>
+        <pre class="log" id="log">아직 없음</pre>
+      </details>
     </section>
   </main>
 </div>
 
-<!-- 탭바 -->
-<nav class="tabs">
-  <button class="tab" data-view="home" aria-current="page">홈</button>
-  <button class="tab" data-view="rules">자동 규칙</button>
-  <button class="tab" data-view="conn">연결</button>
-</nav>
-<div class="toast" id="toast"></div>
+<nav class="tabs" aria-label="화면 이동"><div>
+  <button class="tab" data-view="home" aria-current="page" type="button"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></svg>홈</button>
+  <button class="tab" data-view="history" type="button"><svg viewBox="0 0 24 24"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg>기록</button>
+  <button class="tab" data-view="settings" type="button"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>설정</button>
+</div></nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
 <script>
-  // id로 요소 찾기: $("inPm25") 는 id="inPm25" 인 요소
+(function(){
+"use strict";
 const $ = id => document.getElementById(id);
 
-// 탭 전환: 고른 화면만 보이고 나머지는 숨김
-function go(view) {
-  ["home", "rules", "conn"].forEach(name => {
-    $("view-" + name).hidden = (name !== view);
-  });
-  document.querySelectorAll(".tab").forEach(tab => {
-    if (tab.dataset.view === view) tab.setAttribute("aria-current", "page");
-    else tab.removeAttribute("aria-current");
-  });
-  window.scrollTo(0, 0);
+// ---------------- 기본 설정 ----------------
+const DEFAULTS = {url:"wss://broker.hivemq.com:8884/mqtt", base:"airsync/cucumbersoap", user:"", pass:""};
+const CFG_DEFAULT = {outPm25Max:35,pmDiffOpen:10,pmDiffClose:3,vocOpen:200,vocClose:120,tempMin:5,tempMax:32,minIntervalSec:60,rainCloseInManual:true};
+const STALE = 60;            // 초: 이보다 오래된 값은 "오래됨"
+const PENDING_MS = 6000;     // 버튼을 누른 뒤 보드 응답을 기다리는 시간
+
+function load(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
+function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+let settings = Object.assign({}, DEFAULTS, load("airsync.settings", {}));
+let client = null, demo = false, demoTimer = null, demoCommand = () => {};
+const S = {
+  indoor:null, inTs:0, outdoor:null, outTs:0, win:null, winTs:0,
+  status:{indoor:null, outdoor:null, window:null},
+  mode:null, cfg:Object.assign({}, CFG_DEFAULT),
+  pending:null,              // {cmd:"open"|"close"|"stop", at:시각}  버튼을 누르고 보드 응답을 기다리는 중
+  hist:[], serverHist:[], range:0, events:[], serverEvents:null, log:[]
+};
+
+// ---------------- 테마 ----------------
+function applyTheme(t){
+  if(t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+  else delete document.documentElement.dataset.theme;
+  document.querySelectorAll("#themeBtns button").forEach(b => b.setAttribute("aria-pressed", b.dataset.t === (t || "system")));
+  requestAnimationFrame(() => $("themeColor").setAttribute("content", getComputedStyle(document.body).backgroundColor));
 }
-document.querySelectorAll(".tab").forEach(tab => {
-  tab.onclick = () => go(tab.dataset.view);
+let theme = "system";
+try{ theme = localStorage.getItem("airsync.theme") || "system"; }catch(e){}
+applyTheme(theme);
+document.querySelectorAll("#themeBtns button").forEach(b => b.onclick = () => {
+  theme = b.dataset.t; try{ localStorage.setItem("airsync.theme", theme); }catch(e){}
+  applyTheme(theme); drawChart();
 });
+if(window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => applyTheme(theme));
 
-// 알림: 2.4초 동안 보였다가 사라짐
-let toastTimer;
-function toast(text) {
-  $("toast").textContent = text;
-  $("toast").classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => $("toast").classList.remove("show"), 2400);
-}
-// 연결 설정 (8단계에서 휴대폰에 저장되게 바꿈)
-let settings = { url: "wss://broker.hivemq.com:8884/mqtt", base: "airsync/cucumbersoap", user: "", pass: "" };
-let client = null;
+// ---------------- 등급 (환경부 기준) ----------------
+function gradePm25(v){ if(v==null) return null; return v<=15?"good":v<=35?"ok":v<=75?"bad":"vbad"; }
+function gradeVoc(v){ if(v==null) return null; return v<=150?"good":v<=250?"ok":v<=400?"bad":"vbad"; }
+const GNAME = {good:"좋음", ok:"보통", bad:"나쁨", vbad:"매우나쁨"};
+const GCOLOR = {good:"var(--good)", ok:"var(--ok)", bad:"var(--bad)", vbad:"var(--vbad)"};
+function fmt(v, d, unit){ return v==null || isNaN(v) ? "--" : Number(v).toFixed(d) + (unit||""); }
+function ago(ts){ if(!ts) return ""; const s = Math.max(0, Math.round((Date.now()-ts)/1000)); return s<60 ? s+"초 전" : s<3600 ? Math.floor(s/60)+"분 전" : Math.floor(s/3600)+"시간 전"; }
+function hhmm(t){ return new Date(t).toTimeString().slice(0,5); }
 
-function setPill(state, text) {
-  $("connPill").dataset.s = state;      // CSS가 점 색을 바꿈
-  $("connText").textContent = text;
-}
+// ---------------- 메시지 처리 ----------------
+const POS = {
+  open:["열려 있어요",1], closed:["닫혀 있어요",0], opening:["여는 중…",.75], closing:["닫는 중…",.25],
+  middle:["중간에 멈춤",.5], unknown:["위치 모름",0], error:["오류 발생",.5]
+};
+const POS_SHORT = {open:"열림", closed:"닫힘", opening:"여는 중", closing:"닫는 중", middle:"중간 멈춤", unknown:"위치 모름", error:"오류"};
 
-function connect() {
-  if (client) client.end(true);         // 이전 연결이 있으면 끊음
-  setPill("try", "연결 중…");
-  client = mqtt.connect(settings.url, {
-    clientId: "airsync-app-" + Math.random().toString(16).slice(2, 10),  // 접속마다 다른 이름
-    username: settings.user || undefined,
-    password: settings.pass || undefined,
-    reconnectPeriod: 5000,              // 끊기면 5초마다 다시 시도
-    connectTimeout: 8000
-  });
-
-  client.on("connect", () => {
-    setPill("on", "연결됨");
-    $("connBanner").hidden = true;
-    client.subscribe(settings.base + "/#", { qos: 1 });
-  });
-  client.on("reconnect", () => setPill("try", "다시 연결 중…"));
-  client.on("offline", () => setPill("off", "연결 끊김"));
-  client.on("error", err => {
-    setPill("off", "연결 오류");
-    $("connBannerText").textContent = "연결 오류: " + err.message;
-    $("connBanner").hidden = false;
-  });
-
-  // 메시지가 오면 "airsync/home1/indoor/data" → "indoor/data"로 자른 뒤 handle()에 넘김
-  client.on("message", (topic, payload) => {
-    const suffix = topic.slice(settings.base.length + 1);
-    handle(suffix, payload.toString());
-  });
-}
-
-// ===== 6단계: 데이터 저장과 화면 그리기 =====
-// 받은 값을 모아 두는 상자
-const S = { indoor: null, inTs: 0, outdoor: null, outTs: 0, win: null, mode: null, hist: [], log: [] };
-const STALE = 60 * 1000;   // 60초가 넘은 값은 "오래됨"
-
-function handle(suffix, text) {
+function handle(suffix, text){
   addLog(suffix, text);
-  if (suffix.endsWith("/status")) return;              // online/offline 은 JSON이 아님
-  let d;
-  try { d = JSON.parse(text); } catch (e) { return; }  // JSON이 아니면 무시
-  if (suffix === "indoor/data")  { S.indoor = d;  S.inTs = Date.now();  pushHist(); }
-  if (suffix === "outdoor/data") { S.outdoor = d; S.outTs = Date.now(); pushHist(); }
-  if (suffix === "window/state") { S.win = d; if (d.mode) S.mode = d.mode; }
-  if (suffix === "window/mode")  { if (d.mode) S.mode = d.mode; }
-  if (suffix === "window/config") { Object.assign(S.cfg, d); fillCfg(); }
+  if(/\/status$/.test(suffix)){ const u = suffix.split("/")[0]; if(u in S.status) S.status[u] = text.trim(); render(); return; }
+  let d; try{ d = JSON.parse(text); }catch(e){ return; }
+  if(suffix==="indoor/data"){ S.indoor=d; S.inTs=Date.now(); pushHist(); }
+  else if(suffix==="outdoor/data"){ S.outdoor=d; S.outTs=Date.now(); pushHist(); }
+  else if(suffix==="window/state"){
+    const prev = S.win;
+    S.win = d; S.winTs = Date.now(); if(d.mode) S.mode = d.mode;
+    if(!prev || prev.pos !== d.pos || prev.mode !== d.mode) addEvent(d);
+    settlePending(d.pos);
+  }
+  else if(suffix==="window/mode"){ if(d.mode) S.mode = d.mode; }
+  else if(suffix==="window/config"){ Object.assign(S.cfg, d); fillCfg(); }
   render();
 }
-
-// 연결 탭의 "받은 메시지" (최근 30개)
-function addLog(suffix, text) {
-  S.log.unshift(new Date().toTimeString().slice(0, 8) + "  " + suffix + "  " + text);
+// 버튼을 누른 뒤 보드가 그 명령을 받아들였는지 확인
+function settlePending(pos){
+  const p = S.pending; if(!p) return;
+  if(p.cmd==="open"  && (pos==="opening" || pos==="open"))  S.pending = null;
+  if(p.cmd==="close" && (pos==="closing" || pos==="closed")) S.pending = null;
+  if(p.cmd==="stop"  && pos!=="opening" && pos!=="closing")  S.pending = null;
+}
+function pushHist(){
+  const now = Date.now(), last = S.hist[S.hist.length-1];
+  const p = {t:now, i:S.indoor && S.indoor.pm25!=null ? S.indoor.pm25 : null, o:S.outdoor && S.outdoor.pm25!=null ? S.outdoor.pm25 : null};
+  if(last && now-last.t < 10000) Object.assign(last, {i:p.i, o:p.o});
+  else S.hist.push(p);
+  S.hist = S.hist.filter(h => now-h.t <= 30*60*1000);
+}
+function addEvent(d){
+  S.events.unshift({t:Date.now(), pos:d.pos, mode:d.mode, reason:d.reason||""});
+  S.events.length = Math.min(S.events.length, 20);
+  renderEvents();
+}
+function addLog(suffix, text){
+  S.log.unshift(new Date().toTimeString().slice(0,8)+"  "+suffix+"  "+text);
   S.log.length = Math.min(S.log.length, 30);
   $("log").textContent = S.log.join("\n");
 }
 
-// 그래프용 기록: 10초에 한 점, 30분치만 보관
-function pushHist() {
-  const now = Date.now(), last = S.hist[S.hist.length - 1];
-  const point = { t: now, i: S.indoor ? S.indoor.pm25 : null, o: S.outdoor ? S.outdoor.pm25 : null };
-  if (last && now - last.t < 10000) { last.i = point.i; last.o = point.o; }
-  else S.hist.push(point);
-  S.hist = S.hist.filter(h => now - h.t <= 30 * 60 * 1000);
-}
-
-// 미세먼지 등급 (환경부 기준)
-function gradePm25(v) { if (v == null) return null; return v <= 15 ? "good" : v <= 35 ? "ok" : v <= 75 ? "bad" : "vbad"; }
-function gradePm10(v) { if (v == null) return null; return v <= 30 ? "good" : v <= 80 ? "ok" : v <= 150 ? "bad" : "vbad"; }
-const GNAME = { good: "좋음", ok: "보통", bad: "나쁨", vbad: "매우나쁨" };
-const POS = { open: "열림", closed: "닫힘", opening: "여는 중", closing: "닫는 중",
-              middle: "중간에 멈춤", unknown: "위치 모름", error: "오류" };
-
-function fmt(v, digits, unit) { return v == null ? "--" : Number(v).toFixed(digits) + (unit || ""); }
-function ago(ts) { const s = Math.round((Date.now() - ts) / 1000); return s < 60 ? s + "초 전" : Math.floor(s / 60) + "분 전"; }
-function ageText(ts) {
-  if (!ts) return "기다리는 중";
-  return ago(ts) + (Date.now() - ts > STALE ? " · 값이 오래됨" : " 업데이트");
-}
-function showGrade(id, g) { $(id).textContent = g ? GNAME[g] : "-"; $(id).dataset.g = g || ""; }
-
-function render() {
+// ---------------- 화면 그리기 ----------------
+function render(){
   const now = Date.now();
-
-  // 창문 카드
+  const live = demo || (client && client.connected);
   const w = S.win;
-  $("posText").textContent = w ? "창문 " + (POS[w.pos] || "위치 모름") : "상태 모름";
-  $("reasonText").textContent = w ? (w.reason || "") : "창문 유닛의 응답을 기다리는 중";
-  $("modeAuto").setAttribute("aria-pressed", S.mode === "auto");
-  $("modeManual").setAttribute("aria-pressed", S.mode === "manual");
-  const live = demo || (client && client.connected);   // 데모 모드에서도 버튼 사용
-  ["btnOpen", "btnStop", "btnClose", "modeAuto", "modeManual"].forEach(id => $(id).disabled = !live);
 
-  // 실내 카드
-  const i = S.indoor || {};
-  $("inPm25").textContent = fmt(i.pm25, 0);
-  showGrade("inGrade", gradePm25(i.pm25));
-  $("inPm10").textContent = fmt(i.pm10, 0);
-  $("inTemp").textContent = fmt(i.temp, 1, "°C");
-  $("inHum").textContent = fmt(i.hum, 0, "%");
-  $("inVoc").textContent = fmt(i.voc, 0);
-  $("inAge").textContent = ageText(S.inTs);
+  // 버튼을 누르고 응답이 없으면 정리
+  if(S.pending && now - S.pending.at > PENDING_MS){
+    const cmd = S.pending.cmd; S.pending = null;
+    const pos = w && w.pos;
+    const already = (cmd==="open" && pos==="open") || (cmd==="close" && pos==="closed");
+    if(!already) toast("창문 유닛이 응답하지 않습니다. 전원과 연결을 확인해 주세요");
+  }
 
-  // 실외 카드
-  const o = S.outdoor || {};
-  $("outPm25").textContent = fmt(o.pm25, 0);
-  showGrade("outGrade", gradePm25(o.pm25));
+  // 화면에 보여 줄 위치: 응답을 기다리는 중이면 누른 버튼 기준으로 먼저 보여 줌
+  let pos = w && w.pos || "unknown";
+  const pend = S.pending;
+  if(pend){ if(pend.cmd==="open" && pos!=="open") pos = "opening"; else if(pend.cmd==="close" && pos!=="closed") pos = "closing"; }
+  const mode = (pend ? "manual" : null) || S.mode || (w && w.mode) || null;
+
+  // 히어로 카드
+  const [label, frac] = POS[pos] || POS.unknown;
+  $("posText").textContent = (w || pend) ? label : "기다리는 중";
+  $("reasonText").textContent = pend ? (pend.cmd==="stop" ? "정지 명령을 보냈어요" : "앱에서 보낸 명령") : (w ? (w.reason || "") : "창문 유닛의 응답을 기다리는 중");
+  $("winArt").dataset.pos = pos;
+  $("pane").style.transform = "translateX(" + (frac*34).toFixed(1) + "px)";
+  const outFresh = S.outTs && now-S.outTs < STALE*1000;
+  $("winArt").dataset.rain = outFresh && S.outdoor && S.outdoor.rain ? "1" : "0";
+  $("modeChip").textContent = mode==="manual" ? "직접 조작" : mode==="auto" ? "자동 관리" : "모드 모름";
+  $("modeChip").classList.toggle("manual", mode==="manual");
+  if(pend) $("heroFoot").innerHTML = '<span class="spin"></span><b>창문 유닛 응답 기다리는 중</b>';
+  else if(S.status.window==="offline") $("heroFoot").textContent = "창문 유닛이 꺼져 있어요";
+  else $("heroFoot").textContent = w ? "창문 유닛 연결됨" : "창문 유닛 기다리는 중";
+  $("winAge").textContent = S.winTs ? ago(S.winTs) : "";
+
+  // 모드와 버튼
+  $("modeAuto").setAttribute("aria-pressed", mode==="auto");
+  $("modeManual").setAttribute("aria-pressed", mode==="manual");
+  $("modeHint").textContent = !live ? "연결되면 버튼을 쓸 수 있어요."
+    : mode==="manual" ? "직접 조작: 버튼으로만 움직여요." + (S.cfg.rainCloseInManual ? " 비가 오면 자동으로 닫혀요." : "")
+    : "자동 관리: 실내·실외 공기를 비교해 창문이 스스로 움직여요. 버튼을 누르면 직접 조작으로 바뀌어요.";
+  ["modeAuto","modeManual","btnStop"].forEach(id => $(id).disabled = !live);
+  $("btnOpen").disabled  = !live || (!pend && pos==="open");
+  $("btnClose").disabled = !live || (!pend && pos==="closed");
+  // 지금 움직이는 방향의 버튼을 강조
+  $("btnOpen").dataset.active  = pos==="opening" ? "1" : "0";
+  $("btnClose").dataset.active = pos==="closing" ? "1" : "0";
+  $("btnStop").dataset.active  = pend && pend.cmd==="stop" ? "1" : "0";
+
+  // 배너
+  $("rainBanner").hidden = !(outFresh && S.outdoor && S.outdoor.rain);
+  $("errBanner").hidden = pos!=="error";
+  $("errText").textContent = "창문 오류: " + (w && w.reason || "") + " — 원인을 확인한 뒤 열기·닫기를 누르거나 자동 관리로 바꾸면 풀려요.";
+
+  // 공기 카드
+  const i = S.indoor || {}, o = S.outdoor || {}, inFresh = S.inTs && now-S.inTs < STALE*1000;
+  setSide("in", i, inFresh, S.inTs, S.status.indoor);
+  setSide("out", o, outFresh, S.outTs, S.status.outdoor);
+  const gv = gradeVoc(i.voc);
+  $("inVoc").textContent = fmt(i.voc, 0); $("inVoc").style.color = gv ? GCOLOR[gv] : "";
   $("outPm10").textContent = fmt(o.pm10, 0);
-  $("outTemp").textContent = fmt(o.temp, 1, "°C");
-  $("outHum").textContent = fmt(o.hum, 0, "%");
   $("outRain").textContent = S.outdoor ? (o.rain ? "비 옴" : "안 옴") : "--";
-  $("outAge").textContent = ageText(S.outTs);
-  $("rainBanner").hidden = !(o.rain && now - S.outTs < STALE);
+  $("outRain").style.color = S.outdoor && o.rain ? "var(--good)" : "";
 
-  // 실내·실외 비교 한 줄
-  let msg = "실내와 실외 값을 받으면 비교해 드립니다.";
-  if (i.pm25 != null && o.pm25 != null) {
+  let msg = "실내와 실외 값을 받으면 비교해 드려요.";
+  if(inFresh && outFresh && i.pm25!=null && o.pm25!=null){
     const diff = i.pm25 - o.pm25;
-    if (o.rain) msg = "비가 와서 환기하지 않습니다.";
-    else if (o.pm25 > 35) msg = "실외 미세먼지가 나빠서 창문을 닫아 두는 것이 좋습니다.";
-    else if (diff >= 10) msg = "실내 PM2.5가 실외보다 " + diff.toFixed(0) + " 높습니다. 환기하면 좋아요.";
-    else msg = "실내와 실외 공기가 비슷합니다 (차이 " + diff.toFixed(0) + ").";
+    if(o.rain) msg = "비가 와서 환기하지 않아요.";
+    else if(o.pm25 > S.cfg.outPm25Max) msg = "실외 미세먼지가 " + GNAME[gradePm25(o.pm25)] + "이라 창문을 닫아 두는 게 좋아요.";
+    else if(diff >= S.cfg.pmDiffOpen) msg = "실내 먼지가 " + diff.toFixed(0) + " µg/m³ 더 높아요. 환기하면 좋아요.";
+    else if(i.voc!=null && i.voc >= S.cfg.vocOpen) msg = "실내 VOC 지수가 " + i.voc.toFixed(0) + "로 높아요. 환기하면 좋아요.";
+    else if(diff <= S.cfg.pmDiffClose) msg = "실내와 실외 공기가 비슷해요 (차이 " + diff.toFixed(0) + ").";
+    else msg = "실내가 실외보다 조금 탁해요 (차이 " + diff.toFixed(0) + ").";
   }
   $("compareText").textContent = msg;
 
-  drawChart();
+  // 연결 상태
+  [["stIndoor","indoor"],["stOutdoor","outdoor"],["stWindow","window"]].forEach(([id,u]) => {
+    const s = S.status[u]; $(id).textContent = s==="online" ? "온라인" : s==="offline" ? "오프라인" : "모름";
+    $(id).style.color = s==="online" ? "var(--ok)" : s==="offline" ? "var(--vbad)" : "var(--muted)";
+  });
+  if(!$("view-history").hidden) drawChart();
+}
+function setSide(k, d, fresh, ts, status){
+  const g = gradePm25(d.pm25);
+  $(k+"Pm25").textContent = fmt(d.pm25, 0);
+  $(k+"Pm25").style.color = k==="out" && d.pm25!=null ? "var(--coral-ink)" : "";
+  $(k+"Grade").textContent = status==="offline" ? "꺼짐" : !ts ? "-" : !fresh ? "오래됨" : g ? GNAME[g] : "-";
+  $(k+"Grade").style.color = fresh && g ? GCOLOR[g] : "";
+  $(k+"Sub").textContent = fmt(d.temp, 1, "°C") + " · " + fmt(d.hum, 0, "%");
+  $(k+"Side").classList.toggle("stale", !!ts && !fresh);
 }
 
-setInterval(render, 1000);   // "3초 전" 같은 시간 글자를 1초마다 갱신 (첫 그리기도 1초 뒤)
-
-// ===== 7단계: 창문 조작과 자동 규칙 =====
-// 자동 규칙 기본값 (보드 window_types.h 와 같은 값)
-const CFG_DEFAULT = { outPm25Max: 35, pmDiffOpen: 10, pmDiffClose: 3, vocOpen: 200, vocClose: 120,
-                      tempMin: 5, tempMax: 32, minIntervalSec: 60, rainCloseInManual: true };
-S.cfg = Object.assign({}, CFG_DEFAULT);
-
-// 브로커에 보내기. retain=true 이면 브로커가 마지막 값을 기억해 둠
-function publish(suffix, obj, retain) {
-  if (demo) { demoCommand(suffix, obj); return true; }   // 8단계: 데모 모드면 브로커 대신 데모로
-  if (!client || !client.connected) { toast("브로커에 연결되어 있지 않습니다"); return false; }
-  client.publish(settings.base + "/" + suffix, JSON.stringify(obj), { qos: 1, retain: !!retain });
-  return true;
-}
-
-// 창문 버튼 (누르면 보드가 수동 모드로 바뀜)
-$("btnOpen").onclick  = () => { if (publish("window/cmd", { cmd: "open" }))  toast("열기 명령을 보냈습니다"); };
-$("btnClose").onclick = () => { if (publish("window/cmd", { cmd: "close" })) toast("닫기 명령을 보냈습니다"); };
-$("btnStop").onclick  = () => { if (publish("window/cmd", { cmd: "stop" }))  toast("정지 명령을 보냈습니다"); };
-
-// 자동/수동 (retain: 보드가 꺼졌다 켜져도 마지막 모드를 받음)
-$("modeAuto").onclick   = () => { if (publish("window/mode", { mode: "auto" }, true))   { S.mode = "auto";   render(); } };
-$("modeManual").onclick = () => { if (publish("window/mode", { mode: "manual" }, true)) { S.mode = "manual"; render(); } };
-
-// 자동 규칙 화면
-const CFG_KEYS = ["outPm25Max", "pmDiffOpen", "pmDiffClose", "vocOpen", "vocClose", "tempMin", "tempMax", "minIntervalSec"];
-function fillCfg() {
-  CFG_KEYS.forEach(k => $("c-" + k).value = S.cfg[k]);
-  $("c-rainCloseInManual").checked = S.cfg.rainCloseInManual;
-}
-fillCfg();
-
-$("cfgSave").onclick = () => {
-  const c = {};
-  for (const k of CFG_KEYS) {
-    const v = parseFloat($("c-" + k).value);
-    if (isNaN(v)) { toast("빈 칸이 있습니다. 숫자를 넣어 주세요"); $("c-" + k).focus(); return; }
-    c[k] = v;
-  }
-  if (c.tempMin >= c.tempMax)        { toast("최저 온도가 최고 온도보다 낮아야 합니다"); return; }
-  if (c.pmDiffClose >= c.pmDiffOpen) { toast("닫기 차이는 열기 차이보다 작아야 합니다"); return; }
-  c.minIntervalSec = Math.round(c.minIntervalSec);
-  c.rainCloseInManual = $("c-rainCloseInManual").checked;
-  if (publish("window/config", c, true)) { Object.assign(S.cfg, c); toast("보드에 저장했습니다"); }
-};
-
-// ===== 8단계: 설정 저장, 그래프, 데모 모드 =====
-// ① 연결 설정을 휴대폰에 저장
-function load(key, fallback) {
-  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
-  catch (e) { return fallback; }          // 저장소를 못 쓰는 브라우저(비공개 창)에서도 멈추지 않게
-}
-function save(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {} }
-
-settings = Object.assign(settings, load("airsync.settings", {}));   // 저장된 값이 있으면 덮어씌움
-$("s-url").value = settings.url;
-$("s-base").value = settings.base;
-$("s-user").value = settings.user;
-$("s-pass").value = settings.pass;
-
-$("btnConnect").onclick = () => {
-  const url = $("s-url").value.trim();
-  const base = $("s-base").value.trim().replace(/\/+$/, "");     // 끝의 / 는 지움
-  if (!/^wss?:\/\//.test(url)) { toast("주소는 wss:// 로 시작해야 합니다"); return; }
-  if (!base) { toast("토픽 앞부분을 넣어 주세요"); return; }
-  settings = { url, base, user: $("s-user").value.trim(), pass: $("s-pass").value };
-  save("airsync.settings", settings);
-  stopDemo();
-  connect();
-  go("home");
-};
-
-// ② PM2.5 그래프
-function drawChart() {
-  const H = S.hist, W = 320, Ht = 150, pad = 18;
-  if (H.length < 2) {
-    $("chart").innerHTML = '<text x="160" y="80" text-anchor="middle" font-size="12" fill="gray">데이터가 쌓이면 그래프가 나옵니다</text>';
+// ---------------- 그래프 ----------------
+function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function drawChart(){
+  const svg = $("chart"), H = S.range > 0 ? S.serverHist : S.hist, W = 320, Ht = 180, padL = 26, padR = 8, padT = 10, padB = 20;
+  if(H.length < 2){
+    svg.innerHTML = '<text x="160" y="92" text-anchor="middle" fill="var(--muted)" font-size="12">' + (S.range>0 ? "이 기간의 기록이 아직 없어요" : "값이 쌓이면 그래프가 나와요") + '</text>';
     return;
   }
-  const t0 = H[0].t, span = Math.max(1, H[H.length - 1].t - t0);
-  const vals = H.flatMap(h => [h.i, h.o]).filter(v => v != null);
-  const vmax = Math.max(20, Math.ceil(Math.max(...vals) / 10) * 10);   // 위쪽 끝 = 10 단위로 올림
-  const x = t => pad + (W - 2 * pad) * (t - t0) / span;               // 시간 → 가로 위치
-  const y = v => Ht - pad - (Ht - 2 * pad) * v / vmax;                 // 값 → 세로 위치 (위로 갈수록 큼)
-  const line = (key, color) => {
-    const pts = H.filter(h => h[key] != null).map(h => x(h.t).toFixed(1) + "," + y(h[key]).toFixed(1));
-    return `<polyline points="${pts.join(" ")}" fill="none" stroke="${color}" stroke-width="2.2" vector-effect="non-scaling-stroke"/>`;
-  };
-  let grid = "";
-  [0, vmax / 2, vmax].forEach(v => {
-    grid += `<line x1="${pad}" x2="${W - pad}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/>` +
-            `<text x="${pad - 4}" y="${y(v) + 4}" text-anchor="end" font-size="9" fill="var(--muted)">${v}</text>`;
-  });
-  $("chart").innerHTML = grid + line("o", "var(--bad)") + line("i", "var(--accent)");   // 주황 = 실외, 초록 = 실내
-}
-
-// ③ 데모 모드
-let demo = false, demoTimer = null, demoPos = "closed";
-
-function startDemo() {
-  if (client) { client.end(true); client = null; }
-  demo = true;
-  setPill("demo", "데모 모드");
-  $("connBanner").hidden = true;
-  S.mode = "auto";
-  let t = 0;
-  clearInterval(demoTimer);
-  demoTimer = setInterval(() => {
-    t++;
-    const inPm = Math.round(28 + 16 * Math.sin(t / 9) + (demoPos === "open" ? -10 : 0));
-    const outPm = Math.round(14 + 4 * Math.sin(t / 14));
-    handle("indoor/data", JSON.stringify({ pm25: inPm, pm10: Math.round(inPm * 1.2), temp: 24.5, hum: 46, voc: 110 }));
-    handle("outdoor/data", JSON.stringify({ pm25: outPm, pm10: Math.round(outPm * 1.6), temp: 17.2, hum: 61, rain: false }));
-    if (S.mode === "auto") {                                    // 보드의 자동 판단을 흉내 냄
-      if (inPm - outPm >= S.cfg.pmDiffOpen) demoPos = "open";
-      else if (inPm - outPm <= S.cfg.pmDiffClose) demoPos = "closed";
-    }
-    handle("window/state", JSON.stringify({ pos: demoPos, mode: S.mode, reason: "데모 데이터" }));
-  }, 2000);
-}
-function stopDemo() { demo = false; clearInterval(demoTimer); }
-
-// 데모에서 버튼을 누르면 브로커 대신 여기로 옴
-function demoCommand(suffix, obj) {
-  if (suffix === "window/cmd") {
-    S.mode = "manual";
-    demoPos = obj.cmd === "open" ? "open" : obj.cmd === "close" ? "closed" : "middle";
+  const t0 = H[0].t, t1 = H[H.length-1].t, span = Math.max(1, t1-t0);
+  const vals = H.flatMap(h => [h.i, h.o]).filter(v => v!=null);
+  const vmax = Math.max(40, Math.ceil(Math.max(...vals)/10)*10);
+  const x = t => padL + (W-padL-padR)*(t-t0)/span, y = v => Ht-padB - (Ht-padT-padB)*v/vmax;
+  let g = "";
+  [0, vmax/2, vmax].forEach(v => { g += `<line x1="${padL}" x2="${W-padR}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${padL-6}" y="${y(v)+3}" text-anchor="end" fill="var(--muted)" font-size="9">${Math.round(v)}</text>`; });
+  g += `<line x1="${padL}" x2="${W-padR}" y1="${y(35)}" y2="${y(35)}" stroke="var(--bad)" stroke-width="1" stroke-dasharray="3 3" opacity=".7"/>`;
+  const tl = t => (S.range > 24 ? (new Date(t).getMonth()+1) + "/" + new Date(t).getDate() + " " : "") + hhmm(t);
+  g += `<text x="${padL}" y="${Ht-4}" fill="var(--muted)" font-size="9">${tl(t0)}</text><text x="${W-padR}" y="${Ht-4}" text-anchor="end" fill="var(--muted)" font-size="9">${tl(t1)}</text>`;
+  const pts = k => H.filter(h => h[k]!=null).map(h => [x(h.t), y(h[k])]);
+  const pi = pts("i"), po = pts("o");
+  if(pi.length > 1){
+    const area = "M" + pi.map(p => p[0].toFixed(1)+","+p[1].toFixed(1)).join("L") + `L${pi[pi.length-1][0].toFixed(1)},${Ht-padB}L${pi[0][0].toFixed(1)},${Ht-padB}Z`;
+    g += `<defs><linearGradient id="gi" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${cssVar("--primary")}" stop-opacity=".22"/><stop offset="1" stop-color="${cssVar("--primary")}" stop-opacity="0"/></linearGradient></defs><path d="${area}" fill="url(#gi)"/>`;
   }
-  if (suffix === "window/mode") S.mode = obj.mode;
-  if (suffix === "window/config") Object.assign(S.cfg, obj);
+  const line = (p, c, dash) => p.length < 2 ? "" : `<polyline points="${p.map(q => q[0].toFixed(1)+","+q[1].toFixed(1)).join(" ")}" fill="none" stroke="${c}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" ${dash?'stroke-dasharray="5 4"':''} vector-effect="non-scaling-stroke"/>`;
+  svg.innerHTML = g + line(po, "var(--coral)", true) + line(pi, "var(--primary)");
 }
 
-$("btnDemo").onclick = () => { startDemo(); go("home"); };
-$("demoBtn").onclick = startDemo;
+// ---------------- 창문 기록 목록 ----------------
+function renderEvents(){
+  const ul = $("events"); ul.innerHTML = "";
+  const list = S.serverEvents || S.events.map(e => ({t:e.t, pos:e.pos, mode:e.mode, reason:e.reason}));
+  $("eventsSide").textContent = S.serverEvents ? "서버 기록" : "앱을 연 뒤";
+  if(!list.length){ ul.innerHTML = '<li style="display:block"><p class="empty">아직 기록이 없어요.</p></li>'; return; }
+  list.slice(0, 20).forEach(e => {
+    const li = document.createElement("li");
+    const tm = document.createElement("time"); tm.textContent = hhmm(e.t);
+    const div = document.createElement("div");
+    const b = document.createElement("b"); b.textContent = "창문 " + (POS_SHORT[e.pos] || e.pos) + " · " + (e.mode==="manual" ? "직접 조작" : "자동");
+    const sp = document.createElement("span"); sp.textContent = e.reason || "";
+    div.append(b, sp); li.append(tm, div); ul.append(li);
+  });
+}
 
-connect();   // ★ 이 줄은 항상 맨 끝에. 다음 단계 코드는 이 줄 위에 넣음
+// ---------------- 서버 기록 (AWS) ----------------
+function apiBase(){
+  const m = /^wss:\/\/([^\/:]+)(:443)?\/mqtt$/.exec(settings.url || "");
+  if(!m || /hivemq\.com$/.test(m[1])) return null;     // 공개 브로커에는 기록 서버가 없음
+  return "https://" + m[1] + "/api";
+}
+function apiGet(path){
+  return fetch(apiBase() + path, {headers:{Authorization:"Basic " + btoa(unescape(encodeURIComponent(settings.user + ":" + settings.pass)))}})
+    .then(r => { if(r.status===401) throw new Error("아이디/비밀번호 확인"); if(!r.ok) throw new Error("서버 오류 " + r.status); return r.json(); });
+}
+function updateRangeUI(){
+  const hasApi = !!apiBase() && !demo;
+  document.querySelectorAll("#rangeBtns button").forEach(b => {
+    const h = Number(b.dataset.h); b.hidden = h>0 && !hasApi; b.setAttribute("aria-pressed", h===S.range);
+  });
+  $("rangeBtns").hidden = !hasApi;
+  if(!hasApi) S.range = 0;
+  $("chartTitle").textContent = S.range===0 ? "앱을 연 뒤 30분" : S.range===168 ? "지난 7일" : "지난 " + S.range + "시간";
+  if(!$("chartNote").dataset.busy) $("chartNote").textContent = hasApi ? (S.range>0 ? "서버에 저장된 기록이에요." : "") : "AWS 서버에 연결하면 지난 기록도 볼 수 있어요.";
+}
+async function loadHistory(hours){
+  if(!apiBase()) return;
+  $("chartNote").dataset.busy = "1"; $("chartNote").textContent = "기록을 불러오는 중…";
+  try{
+    const [inn, out] = await Promise.all([apiGet("/history?unit=indoor&hours="+hours+"&points=120"), apiGet("/history?unit=outdoor&hours="+hours+"&points=120")]);
+    if(S.range !== hours) return;
+    const map = new Map();
+    inn.points.forEach(p => map.set(p.t, {t:p.t*1000, i:p.pm25 ?? null, o:null}));
+    out.points.forEach(p => { const q = map.get(p.t) || {t:p.t*1000, i:null, o:null}; q.o = p.pm25 ?? null; map.set(p.t, q); });
+    S.serverHist = [...map.values()].sort((a,b) => a.t-b.t);
+    delete $("chartNote").dataset.busy; $("chartNote").textContent = "서버에 저장된 기록이에요.";
+  }catch(e){
+    S.serverHist = []; delete $("chartNote").dataset.busy; $("chartNote").textContent = "기록을 불러오지 못했어요: " + e.message;
+  }
+  drawChart();
+}
+async function loadEvents(){
+  if(!apiBase() || demo){ S.serverEvents = null; renderEvents(); return; }
+  try{
+    const r = await apiGet("/events?hours=168");
+    S.serverEvents = r.events.filter(e => e.kind==="window").map(e => ({t:e.t*1000, pos:e.data.pos, mode:e.data.mode, reason:e.data.reason}));
+  }catch(e){ S.serverEvents = null; }
+  renderEvents();
+}
+document.querySelectorAll("#rangeBtns button").forEach(b => b.onclick = () => {
+  S.range = Number(b.dataset.h); updateRangeUI();
+  if(S.range > 0) loadHistory(S.range);
+  drawChart();
+});
+
+// ---------------- 명령 보내기 ----------------
+function publish(suffix, obj, retain){
+  if(demo){ demoCommand(suffix, obj); return true; }
+  if(!client || !client.connected){ toast("브로커에 연결되어 있지 않아요"); return false; }
+  client.publish(settings.base + "/" + suffix, JSON.stringify(obj), {qos:1, retain:!!retain});
+  return true;
+}
+function sendCmd(cmd, msg){
+  if(!publish("window/cmd", {cmd})) return;
+  S.pending = {cmd, at:Date.now()};     // 보드 응답 전이라도 화면을 먼저 바꿈
+  S.mode = "manual";
+  if(navigator.vibrate) navigator.vibrate(15);
+  toast(msg);
+  render();
+}
+$("btnOpen").onclick  = () => sendCmd("open",  "열기 명령을 보냈어요 · 직접 조작으로 바뀌어요");
+$("btnClose").onclick = () => sendCmd("close", "닫기 명령을 보냈어요 · 직접 조작으로 바뀌어요");
+$("btnStop").onclick  = () => sendCmd("stop",  "정지 명령을 보냈어요");
+$("modeAuto").onclick   = () => { if(publish("window/mode",{mode:"auto"},true)){ S.mode="auto"; S.pending=null; toast("자동 관리로 바꿨어요"); render(); } };
+$("modeManual").onclick = () => { if(publish("window/mode",{mode:"manual"},true)){ S.mode="manual"; toast("직접 조작으로 바꿨어요"); render(); } };
+
+// ---------------- 자동 규칙 ----------------
+const CFG_KEYS = ["outPm25Max","pmDiffOpen","pmDiffClose","vocOpen","vocClose","tempMin","tempMax","minIntervalSec"];
+function fillCfg(){ CFG_KEYS.forEach(k => $("c-"+k).value = S.cfg[k]); $("c-rainCloseInManual").checked = !!S.cfg.rainCloseInManual; }
+$("cfgReset").onclick = () => { S.cfg = Object.assign({}, CFG_DEFAULT); fillCfg(); toast("기본값을 채웠어요. 저장을 눌러야 보드에 반영돼요"); };
+$("cfgSave").onclick = () => {
+  const c = {};
+  for(const k of CFG_KEYS){ const v = parseFloat($("c-"+k).value); if(isNaN(v)){ toast("빈 칸이 있어요. 숫자를 넣어 주세요"); $("c-"+k).focus(); return; } c[k] = k==="minIntervalSec" ? Math.round(v) : v; }
+  if(c.tempMin >= c.tempMax){ toast("최저 온도가 최고 온도보다 낮아야 해요"); return; }
+  if(c.pmDiffClose >= c.pmDiffOpen){ toast("닫기 차이는 열기 차이보다 작아야 해요"); return; }
+  c.rainCloseInManual = $("c-rainCloseInManual").checked;
+  if(publish("window/config", c, true)){ Object.assign(S.cfg, c); toast("보드에 저장했어요"); render(); }
+};
+
+// ---------------- 연결 ----------------
+function setPill(s, text){ $("connPill").dataset.s = s; $("connText").textContent = text; }
+function fillSettings(){ $("s-url").value = settings.url; $("s-base").value = settings.base; $("s-user").value = settings.user; $("s-pass").value = settings.pass; }
+function resetData(){ Object.assign(S, {indoor:null,inTs:0,outdoor:null,outTs:0,win:null,winTs:0,mode:null,pending:null,hist:[],serverHist:[],events:[],serverEvents:null,status:{indoor:null,outdoor:null,window:null}}); renderEvents(); }
+function showConnBanner(t){ $("connBannerText").textContent = t; $("connBanner").hidden = false; }
+function disconnect(){
+  if(client){ try{ client.end(true); }catch(e){} client = null; }
+  if(demoTimer){ clearInterval(demoTimer); demoTimer = null; }
+  demo = false; setPill("off","연결 안 됨"); showConnBanner("브로커에 연결되지 않았어요.");
+  updateRangeUI(); render();
+}
+function connect(){
+  disconnect(); resetData();
+  if(typeof window.mqtt === "undefined"){ setPill("off","연결 불가"); showConnBanner("통신 라이브러리를 불러오지 못했어요. 인터넷 연결을 확인해 주세요."); return; }
+  setPill("try","연결 중…"); $("connBanner").hidden = true;
+  const failTimer = setTimeout(() => { if(!client || !client.connected) showConnBanner("브로커에 연결하지 못했어요. 설정에서 주소와 비밀번호를 확인해 주세요."); }, 9000);
+  try{
+    client = mqtt.connect(settings.url, {
+      clientId: "airsync-app-" + Math.random().toString(16).slice(2,10),
+      username: settings.user || undefined, password: settings.pass || undefined,
+      clean: true, reconnectPeriod: 5000, connectTimeout: 8000, keepalive: 30
+    });
+  }catch(e){ clearTimeout(failTimer); setPill("off","주소 오류"); showConnBanner("브로커 주소 형식이 맞지 않아요: " + e.message); return; }
+  client.on("connect", () => {
+    clearTimeout(failTimer); setPill("on", apiBase() ? "서버 연결됨" : "연결됨"); $("connBanner").hidden = true;
+    client.subscribe(settings.base + "/#", {qos:1});
+    loadEvents(); render();
+  });
+  client.on("reconnect", () => setPill("try","다시 연결 중…"));
+  client.on("offline", () => { setPill("off","연결 끊김"); render(); });
+  client.on("error", err => { setPill("off","연결 오류"); showConnBanner("연결 오류: " + (err && err.message || err)); });
+  client.on("message", (topic, payload) => {
+    if(!topic.startsWith(settings.base + "/")) return;
+    handle(topic.slice(settings.base.length+1), payload.toString());
+  });
+  updateRangeUI();
+}
+$("btnConnect").onclick = () => {
+  const url = $("s-url").value.trim(), base = $("s-base").value.trim().replace(/\/+$/,"");
+  if(!/^wss?:\/\//.test(url)){ toast("주소는 wss:// 로 시작해야 해요"); $("s-url").focus(); return; }
+  if(!base || /[#+]/.test(base)){ toast("토픽 앞부분을 확인해 주세요 (# + 는 쓸 수 없어요)"); $("s-base").focus(); return; }
+  settings = {url, base, user:$("s-user").value.trim(), pass:$("s-pass").value};
+  save("airsync.settings", settings); connect(); toast("저장했어요. 연결 중…"); go("home");
+};
+$("btnDisconnect").onclick = () => { disconnect(); toast("연결을 끊었어요"); };
+$("connPill").onclick = () => { go("settings"); $("connDetails").open = true; };
+
+// ---------------- 데모 모드 ----------------
+function startDemo(){
+  disconnect(); resetData(); demo = true; setPill("demo","데모 모드"); $("connBanner").hidden = true;
+  let t = 0, winPos = "closed", moveUntil = 0, target = null;
+  S.status = {indoor:"online", outdoor:"online", window:"online"};
+  const D = {mode:"auto", reason:"시작"};
+  demoCommand = (suffix, obj) => {
+    // 실제 보드처럼 0.4초 뒤에 응답
+    setTimeout(() => {
+      if(suffix==="window/cmd"){
+        D.mode = "manual"; D.reason = "앱 명령";
+        if(obj.cmd==="stop"){ target = null; if(winPos==="opening"||winPos==="closing") winPos = "middle"; }
+        else { const tg = obj.cmd==="open" ? "open" : "closed"; if(winPos!==tg){ target = tg; winPos = tg==="open" ? "opening" : "closing"; moveUntil = Date.now()+4000; } }
+      }
+      if(suffix==="window/mode") D.mode = obj.mode;
+      if(suffix==="window/config") Object.assign(S.cfg, obj);
+      tick(true);
+    }, 400);
+  };
+  function tick(onlyState){
+    if(!onlyState){
+      t++;
+      const inPm = Math.max(3, 28 + 16*Math.sin(t/9) + (winPos==="open" ? -10 : 0) + Math.random()*3);
+      const outPm = Math.max(2, 14 + 4*Math.sin(t/14) + Math.random()*2);
+      const rain = (t % 90) > 80;
+      handle("indoor/data", JSON.stringify({pm25:+inPm.toFixed(1),pm10:+(inPm*1.2).toFixed(1),temp:+(24.5+Math.sin(t/20)).toFixed(1),hum:+(46+3*Math.sin(t/17)).toFixed(1),voc:Math.round(110+40*Math.sin(t/11))}));
+      handle("outdoor/data", JSON.stringify({temp:+(17+Math.sin(t/25)).toFixed(1),hum:rain?88:61,pm25:Math.round(outPm),pm10:Math.round(outPm*1.6),rain}));
+      if(!target){
+        const diff = inPm - outPm;
+        if(rain && winPos!=="closed" && (D.mode==="auto" || S.cfg.rainCloseInManual)){ target="closed"; winPos="closing"; moveUntil=Date.now()+4000; D.reason="비 감지"; }
+        else if(D.mode==="auto" && !rain && diff >= S.cfg.pmDiffOpen && winPos==="closed"){ target="open"; winPos="opening"; moveUntil=Date.now()+4000; D.reason="실내 미세먼지가 더 많음, 환기"; }
+        else if(D.mode==="auto" && !rain && diff <= S.cfg.pmDiffClose && winPos==="open"){ target="closed"; winPos="closing"; moveUntil=Date.now()+4000; D.reason="환기 완료"; }
+      }
+    }
+    if(target && Date.now() >= moveUntil){ winPos = target; target = null; }
+    handle("window/state", JSON.stringify({pos:winPos, mode:D.mode, reason:D.reason}));
+  }
+  for(let k=60;k>0;k--){ const tt = Date.now()-k*30000; S.hist.push({t:tt, i:+(28+16*Math.sin((t-k)/9)+Math.random()*3).toFixed(1), o:Math.round(14+4*Math.sin((t-k)/14)+Math.random()*2)}); }
+  tick(); demoTimer = setInterval(() => tick(false), 1000);
+  updateRangeUI(); toast("데모 모드: 가짜 데이터예요");
+}
+$("btnDemo").onclick = () => { startDemo(); go("home"); };
+$("demoBtn").onclick = () => startDemo();
+
+// ---------------- 탭 ----------------
+const VIEWS = ["home","history","settings"];
+function go(v){
+  VIEWS.forEach(n => $("view-"+n).hidden = n!==v);
+  document.querySelectorAll(".tab").forEach(b => { if(b.dataset.view===v) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+  window.scrollTo(0,0);
+  if(v==="history"){ updateRangeUI(); drawChart(); renderEvents(); if(S.range>0) loadHistory(S.range); if(client && client.connected) loadEvents(); }
+  try{ history.replaceState(null, "", "#" + v); }catch(e){}
+}
+document.querySelectorAll(".tab").forEach(b => b.onclick = () => go(b.dataset.view));
+document.querySelectorAll("[data-go]").forEach(b => b.onclick = () => {
+  go(b.dataset.go);
+  if(b.dataset.scroll){ const card = $(b.dataset.scroll); const d = card.querySelector("details"); if(d) d.open = true; card.scrollIntoView({behavior:"smooth", block:"start"}); }
+});
+
+let toastTimer;
+function toast(t){ const el = $("toast"); el.textContent = t; el.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove("show"), 2600); }
+
+// ---------------- 시작 ----------------
+fillSettings(); fillCfg(); renderEvents(); updateRangeUI(); render();
+setInterval(render, 1000);
+setInterval(() => { if(S.range > 0 && !$("view-history").hidden && !document.hidden) loadHistory(S.range); }, 60000);
+const startView = (location.hash || "").replace("#","");
+if(VIEWS.includes(startView)) go(startView);
+if(new URLSearchParams(location.search).has("demo") || location.hash==="#demo") startDemo();
+else connect();
+})();
 </script>
 </body>
 </html>
