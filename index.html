@@ -85,6 +85,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .notice{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-radius:14px;padding:11px 14px;font-size:13.5px;font-weight:600;background:var(--warn-bg);color:var(--warn-ink)}
 .notice.rain{background:color-mix(in srgb,var(--good) 15%,var(--card));color:var(--ink)}
 .notice.err{background:color-mix(in srgb,var(--vbad) 15%,var(--card));color:var(--ink)}
+.grp{margin:6px 0 -4px;font-size:12.5px;font-weight:700;color:var(--main)}
 .notice button{border:0;border-radius:10px;padding:7px 12px;background:var(--card);font-weight:700;font-size:13px}
 
 /* =========================================================
@@ -231,7 +232,7 @@ details[open] summary{margin-bottom:12px}
   <!-- ===================== 홈 ===================== -->
   <main id="view-home" class="view">
     <div class="notice rain" id="rainBanner" hidden>☂ 바깥에 비가 와요. 창문을 닫습니다.</div>
-    <div class="notice err" id="errBanner" hidden><span id="errText">창문 오류</span></div>
+    <div class="notice err" id="errBanner" hidden><span id="errText">창문 오류</span><button id="btnReset" type="button">오류 해제</button></div>
     <div class="notice" id="connBanner" hidden><span id="connBannerText">브로커에 연결되지 않았어요.</span><button id="demoBtn" type="button">데모 실행</button></div>
 
     <section class="sky" id="sky" data-pos="unknown" aria-label="창문 상태">
@@ -355,16 +356,35 @@ details[open] summary{margin-bottom:12px}
       <details id="rulesDetails">
         <summary>자동 운전 기준</summary>
         <div class="view">
-          <div class="field"><label for="c-outPm25Max">바깥 PM2.5가 이 값을 넘으면 닫기</label><div class="with-unit"><input type="number" id="c-outPm25Max" inputmode="decimal"><em>µg/m³</em></div><small>환경부 기준 36부터 "나쁨"</small></div>
-          <div class="field"><label for="c-pmDiffOpen">안이 바깥보다 이만큼 높으면 열기</label><div class="with-unit"><input type="number" id="c-pmDiffOpen" inputmode="decimal"><em>µg/m³</em></div></div>
-          <div class="field"><label for="c-pmDiffClose">차이가 이만큼 이하로 줄면 닫기</label><div class="with-unit"><input type="number" id="c-pmDiffClose" inputmode="decimal"><em>µg/m³</em></div></div>
-          <div class="field"><label for="c-vocOpen">VOC 지수가 이 이상이면 열기</label><div class="with-unit"><input type="number" id="c-vocOpen" inputmode="numeric"><em>보통 100</em></div></div>
-          <div class="field"><label for="c-vocClose">VOC 지수가 이 이하면 닫아도 됨</label><div class="with-unit"><input type="number" id="c-vocClose" inputmode="numeric"><em>지수</em></div></div>
+          <p class="grp">바깥 공기 제한 · 넘으면 닫고 열지 않아요</p>
+          <div class="field"><label for="c-outPm25Max">바깥 PM2.5가 이 값을 넘으면 닫기</label><div class="with-unit"><input type="number" id="c-outPm25Max" inputmode="decimal"><em>µg/m³</em></div><small>환경부 기준 36부터 "나쁨". 다시 열 때는 5 더 낮아야 해요</small></div>
+          <div class="field"><label for="c-outPm10Max">바깥 PM10이 이 값을 넘으면 닫기</label><div class="with-unit"><input type="number" id="c-outPm10Max" inputmode="decimal"><em>µg/m³</em></div><small>환경부 기준 81부터 "나쁨". 다시 열 때는 10 더 낮아야 해요</small></div>
           <div class="two">
             <div class="field"><label for="c-tempMin">바깥 최저 온도</label><div class="with-unit"><input type="number" id="c-tempMin" inputmode="decimal"><em>°C</em></div></div>
             <div class="field"><label for="c-tempMax">바깥 최고 온도</label><div class="with-unit"><input type="number" id="c-tempMax" inputmode="decimal"><em>°C</em></div></div>
           </div>
-          <div class="field"><label for="c-minIntervalSec">자동으로 움직인 뒤 쉬는 시간</label><div class="with-unit"><input type="number" id="c-minIntervalSec" inputmode="numeric"><em>초</em></div></div>
+          <div class="field"><label for="c-maxTempDiff">실내외 온도 차이가 이보다 크면 닫기</label><div class="with-unit"><input type="number" id="c-maxTempDiff" inputmode="decimal"><em>°C</em></div></div>
+          <p class="grp">먼지 환기 · 두 조건을 모두 만족하면 시작</p>
+          <div class="two">
+            <div class="field"><label for="c-inPm25Open">실내 PM2.5 이상</label><div class="with-unit"><input type="number" id="c-inPm25Open" inputmode="decimal"><em>µg/m³</em></div></div>
+            <div class="field"><label for="c-pmDiffOpen">실내−실외 차이 이상</label><div class="with-unit"><input type="number" id="c-pmDiffOpen" inputmode="decimal"><em>µg/m³</em></div></div>
+          </div>
+          <p class="grp">먼지 환기 끝 · 하나라도 만족하면 끝</p>
+          <div class="two">
+            <div class="field"><label for="c-inPm25Close">실내 PM2.5 이하</label><div class="with-unit"><input type="number" id="c-inPm25Close" inputmode="decimal"><em>µg/m³</em></div></div>
+            <div class="field"><label for="c-pmDiffClose">실내−실외 차이 이하</label><div class="with-unit"><input type="number" id="c-pmDiffClose" inputmode="decimal"><em>µg/m³</em></div></div>
+          </div>
+          <p class="grp">VOC 환기</p>
+          <div class="two">
+            <div class="field"><label for="c-vocOpen">VOC 지수 이상이면 시작</label><div class="with-unit"><input type="number" id="c-vocOpen" inputmode="numeric"><em>지수</em></div></div>
+            <div class="field"><label for="c-vocClose">이하로 내려가면 끝</label><div class="with-unit"><input type="number" id="c-vocClose" inputmode="numeric"><em>지수</em></div></div>
+          </div>
+          <p class="grp">시간 · 열 때만 기다리고, 보호 목적으로 닫을 때는 바로 닫아요</p>
+          <div class="field"><label for="c-openStableSec">열기 조건이 이 시간 동안 계속되면 열기</label><div class="with-unit"><input type="number" id="c-openStableSec" inputmode="numeric"><em>초</em></div></div>
+          <div class="field"><label for="c-minIntervalSec">닫힌 뒤 다시 자동으로 열기까지</label><div class="with-unit"><input type="number" id="c-minIntervalSec" inputmode="numeric"><em>초</em></div></div>
+          <div class="field"><label for="c-rainDrySec">비가 그친 뒤 이 시간 동안 말라 있어야 열기</label><div class="with-unit"><input type="number" id="c-rainDrySec" inputmode="numeric"><em>초</em></div><small>300초 = 5분</small></div>
+          <div class="field"><label for="c-staleSec">센서 값이 이 시간 넘게 안 오면 센서 이상</label><div class="with-unit"><input type="number" id="c-staleSec" inputmode="numeric"><em>초</em></div><small>보드는 5초마다 값을 보내요</small></div>
+          <div class="field"><label for="c-stopHoldMin">정지 버튼 후 이 시간 동안은 비가 와도 그대로</label><div class="with-unit"><input type="number" id="c-stopHoldMin" inputmode="numeric"><em>분</em></div><small>지나면 비가 올 때 닫혀요</small></div>
           <label class="check"><input type="checkbox" id="c-rainCloseInManual">자동 운전이 꺼져 있어도 비 오면 닫기</label>
           <div class="two"><button type="button" class="btn" id="cfgReset">기본값 채우기</button><button type="button" class="btn main" id="cfgSave">보드에 저장</button></div>
         </div>
@@ -395,7 +415,8 @@ const $ = id => document.getElementById(id);
 
 // ---------------- 기본 설정 ----------------
 const DEFAULTS = {url:"wss://broker.hivemq.com:8884/mqtt", base:"airsync/cucumbersoap", user:"", pass:""};
-const CFG_DEFAULT = {outPm25Max:35,pmDiffOpen:10,pmDiffClose:3,vocOpen:200,vocClose:120,tempMin:5,tempMax:32,minIntervalSec:60,rainCloseInManual:true};
+const CFG_DEFAULT = {outPm25Max:35,outPm10Max:80,tempMin:5,tempMax:32,maxTempDiff:12,inPm25Open:35,pmDiffOpen:10,inPm25Close:20,pmDiffClose:3,vocOpen:200,vocClose:120,openStableSec:20,minIntervalSec:60,rainDrySec:300,staleSec:30,stopHoldMin:10,rainCloseInManual:true};
+const INT_KEYS = ["openStableSec","minIntervalSec","rainDrySec","staleSec","stopHoldMin"];
 const STALE = 60;            // 초: 이보다 오래된 값은 "오래됨"
 const PENDING_MS = 6000;     // 버튼을 누른 뒤 보드 응답을 기다리는 시간
 
@@ -453,17 +474,39 @@ function handle(suffix, text){
   else if(suffix==="window/state"){
     const prev = S.win;
     S.win = d; S.winTs = Date.now(); if(d.mode && !S.pending) S.mode = d.mode;
-    if(!prev || prev.pos !== d.pos || prev.mode !== d.mode) addEvent(d);
-    settlePending(d.pos, d.mode);
+    if(!prev || prev.pos !== d.pos || prev.mode !== d.mode || (d.fault && prev.fault !== d.fault)) addEvent(d);
+    settlePending(d.pos, d.mode, d);
     if(d.mode && !S.pending) S.mode = d.mode;
   }
-  else if(suffix==="window/mode"){ if(d.mode) S.mode = d.mode; }
-  else if(suffix==="window/config"){ Object.assign(S.cfg, d); fillCfg(); }
+  else if(suffix==="window/mode"){ if(d.mode && !S.pending) S.mode = d.mode; }
+  else if(suffix==="window/ack"){ handleAck(d); }
+  else if(suffix==="window/config"){ for(const k in CFG_DEFAULT) if(k in d) S.cfg[k] = d[k]; fillCfg(); }
   render();
 }
-// 버튼을 누른 뒤 보드가 그 명령을 받아들였는지 확인
-function settlePending(pos, mode){
+// 보드의 명령 결과 (window/ack): 거절되면 바로 알려 주고 화면을 되돌림
+const ACK_DONE = ["ALREADY","STOPPED","RESET","NO_FAULT","AUTO","MANUAL"];
+function handleAck(a){
+  if(!a || !a.id) return;
+  if(S.cfgPending && a.id === S.cfgPending){
+    S.cfgPending = null;
+    toast(a.ok ? "보드에 저장했어요" : "저장하지 않았어요: " + (CFG_ERR[a.code] || a.msg || a.code));
+    if(a.ok) addNote("자동 운전 기준 저장"); return;
+  }
+  const p = S.pending;
+  if(!p || a.id !== p.id) return;
+  if(!a.ok){ S.pending = null; S.mode = (S.win && S.win.mode) || S.mode; toast(a.msg || "보드가 명령을 거절했어요"); addNote("명령 거절: " + (a.msg || a.code)); render(); return; }
+  if(ACK_DONE.includes(a.code)) S.pending = null;
+  if(a.code === "NO_OUTDOOR_DATA" || a.code === "ALREADY" || a.code === "RESET" || a.code === "FAULT") toast(a.msg);
+  render();
+}
+const CFG_ERR = {OUT_PM_RANGE:"바깥 먼지 기준 범위", TEMP_RANGE:"온도 범위(최저가 최고보다 3도 이상 낮게)", TEMP_DIFF_RANGE:"온도 차이 범위",
+  IN_PM25_ORDER:"실내 PM2.5 시작값이 끝값보다 커야 해요", PM_DIFF_ORDER:"차이 시작값이 끝값보다 커야 해요", VOC_ORDER:"VOC 시작값이 끝값보다 커야 해요",
+  STABLE_RANGE:"유지 시간 범위", INTERVAL_RANGE:"재개방 시간 범위", RAIN_DRY_RANGE:"비 그친 뒤 시간 범위", STALE_RANGE:"센서 끊김 시간(10~600초)", STOP_HOLD_RANGE:"정지 유지 시간 범위"};
+function addNote(text){ S.events.unshift({t:Date.now(), note:text}); S.events.length = Math.min(S.events.length, 20); renderEvents(); }
+// 버튼을 누른 뒤 보드가 그 명령을 받아들였는지 확인 (상태로 확인)
+function settlePending(pos, mode, d){
   const p = S.pending; if(!p) return;
+  if(p.cmd==="reset"){ if(d && !d.fault) S.pending = null; return; }
   if(mode && mode !== "manual") return;   // 보드는 명령을 받으면 수동으로 바뀜. 아직 자동이면 명령 전 상태
   if(p.cmd==="open"  && (pos==="opening" || pos==="open"))  S.pending = null;
   if(p.cmd==="close" && (pos==="closing" || pos==="closed")) S.pending = null;
@@ -513,11 +556,17 @@ function render(){
   // 하늘 창문 패널
   const [label, frac] = POS[pos] || POS.unknown;
   $("posText").textContent = (w || pend) ? label : "기다리는 중";
-  $("reasonText").textContent = pend ? (pend.cmd==="stop" ? "멈춤 명령 전송" : "앱 버튼으로 움직이는 중") : (w ? (w.reason || "") : "창문 유닛의 응답을 기다리는 중");
+  let reasonLine = w ? (w.reason || "") : "창문 유닛의 응답을 기다리는 중";
+  if(w && w.waitSec > 0 && !pend){
+    const left = Math.max(0, Math.round(w.waitSec - (now - S.winTs)/1000));
+    if(left > 0) reasonLine += " · " + (left >= 90 ? "약 " + Math.ceil(left/60) + "분" : left + "초") + " 남음";
+  }
+  $("reasonText").textContent = pend ? ({stop:"멈춤 명령 전송", reset:"오류 해제 요청", open:"열기 명령 확인 중", close:"닫기 명령 확인 중"}[pend.cmd]) : reasonLine;
   $("sky").dataset.pos = pos; $("winArt").dataset.pos = pos;
   $("sky").dataset.rain = raining ? "1" : "0"; $("winArt").dataset.rain = raining ? "1" : "0";
   $("pane").style.transform = "translateX(" + (frac*40).toFixed(1) + "px)";
-  $("modeChip").textContent = mode==="manual" ? "수동 조작 중" : mode==="auto" ? "자동 운전 중" : "모드 확인 중";
+  const faulted = !!(w && w.fault) || pos==="error";
+  $("modeChip").textContent = faulted ? "구동 오류" : (w && w.stop && !pend && mode==="manual") ? "정지 중" : mode==="manual" ? "수동 조작 중" : mode==="auto" ? "자동 운전 중" : "모드 확인 중";
   if(pend) $("heroFoot").innerHTML = '<span class="dots"><i></i><i></i><i></i></span><b>창문 유닛 응답 대기</b>';
   else if(S.status.window==="offline") $("heroFoot").textContent = "창문 유닛 꺼짐";
   else $("heroFoot").textContent = w ? "창문 유닛 연결됨" : "창문 유닛 대기 중";
@@ -530,16 +579,19 @@ function render(){
     : mode==="auto" ? "공기 상태를 보고 창문이 알아서 움직여요"
     : "꺼짐 · 버튼으로만 움직여요" + (S.cfg.rainCloseInManual ? " (비 오면 닫힘)" : "");
   $("btnStop").disabled  = !live;
-  $("btnOpen").disabled  = !live || (!pend && pos==="open");
-  $("btnClose").disabled = !live || (!pend && pos==="closed");
+  $("btnOpen").disabled  = !live || faulted || (!pend && pos==="open");
+  $("btnClose").disabled = !live || faulted || (!pend && pos==="closed");
+  $("btnReset").disabled = !live || (pend && pend.cmd==="reset");
   $("btnOpen").dataset.active  = pos==="opening" ? "1" : "0";
   $("btnClose").dataset.active = pos==="closing" ? "1" : "0";
   $("btnStop").dataset.active  = pend && pend.cmd==="stop" ? "1" : "0";
 
   // 알림 띠
   $("rainBanner").hidden = !raining;
-  $("errBanner").hidden = pos!=="error";
-  $("errText").textContent = "창문 오류: " + (w && w.reason || "") + " · 확인 후 열기/닫기를 누르거나 자동 운전을 켜면 풀려요.";
+  $("errBanner").hidden = !faulted;
+  $("errText").textContent = (w && w.fault === "switch")
+    ? "끝 스위치 이상: 스위치 2개가 동시에 눌려 있어요. 배선과 스위치를 확인한 뒤 '오류 해제'를 눌러 주세요."
+    : "모터 오류: 정해진 시간 안에 끝까지 가지 못했어요. 걸린 곳·건전지·모터 선을 확인한 뒤 '오류 해제'를 눌러 주세요. 오류 중에는 비가 와도 움직이지 않아요.";
 
   // 공기 비교
   const i = S.indoor || {}, o = S.outdoor || {}, inFresh = S.inTs && now-S.inTs < STALE*1000;
@@ -553,13 +605,17 @@ function render(){
 
   let msg = "실내와 실외 값을 받으면 비교해 드려요.";
   if(inFresh && outFresh && i.pm25!=null && o.pm25!=null){
-    const diff = i.pm25 - o.pm25;
-    if(o.rain) msg = "비가 오는 중이라 환기를 쉬어요.";
-    else if(o.pm25 > S.cfg.outPm25Max) msg = "바깥 공기가 " + GNAME[gradePm25(o.pm25)] + " 수준이에요. 닫아 두는 쪽이 나아요.";
-    else if(diff >= S.cfg.pmDiffOpen) msg = "안쪽 PM2.5가 바깥보다 " + diff.toFixed(0) + " 높아요 → 환기 추천";
-    else if(i.voc!=null && i.voc >= S.cfg.vocOpen) msg = "VOC 지수 " + i.voc.toFixed(0) + " → 환기 추천";
-    else if(diff <= S.cfg.pmDiffClose) msg = "안팎 공기 차이가 " + Math.abs(diff).toFixed(0) + "로 작아요. 지금 상태 유지.";
-    else msg = "안쪽이 바깥보다 " + diff.toFixed(0) + " 높아요. 조금 더 지켜볼게요.";
+    const c = S.cfg, diff = i.pm25 - o.pm25;
+    const tdiff = (i.temp!=null && o.temp!=null) ? Math.abs(i.temp - o.temp) : 0;
+    if(o.rain) msg = "비가 오는 중이라 창문을 닫아 둬요.";
+    else if(o.pm25 > c.outPm25Max) msg = "바깥 초미세먼지가 " + GNAME[gradePm25(o.pm25)] + " 수준이라 열지 않아요.";
+    else if(o.pm10!=null && o.pm10 > c.outPm10Max) msg = "바깥 미세먼지(PM10)가 높아서 열지 않아요.";
+    else if(o.temp!=null && (o.temp < c.tempMin || o.temp > c.tempMax)) msg = "바깥 온도가 " + o.temp.toFixed(0) + "°C라서 열지 않아요.";
+    else if(tdiff > c.maxTempDiff) msg = "안팎 온도 차이가 " + tdiff.toFixed(0) + "°C로 커서 열지 않아요.";
+    else if(i.pm25 >= c.inPm25Open && diff >= c.pmDiffOpen) msg = "실내 PM2.5 " + i.pm25.toFixed(0) + ", 바깥보다 " + diff.toFixed(0) + " 높아요 → 환기 추천";
+    else if(i.voc!=null && i.voc >= c.vocOpen) msg = "VOC 지수 " + i.voc.toFixed(0) + " → 환기 추천";
+    else if(i.pm25 < c.inPm25Open) msg = "실내 PM2.5가 " + i.pm25.toFixed(0) + "로 괜찮아요. 환기가 필요 없어요.";
+    else msg = "실내는 탁하지만 바깥과 차이가 " + diff.toFixed(0) + "뿐이라 환기 효과가 작아요.";
   }
   $("compareText").textContent = msg;
 
@@ -611,13 +667,13 @@ function drawChart(){
 // ---------------- 창문 동작 내역 ----------------
 function renderEvents(){
   const ul = $("events"); ul.innerHTML = "";
-  const list = S.serverEvents || S.events.map(e => ({t:e.t, pos:e.pos, mode:e.mode, reason:e.reason}));
+  const list = S.serverEvents || S.events.map(e => ({t:e.t, pos:e.pos, mode:e.mode, reason:e.reason, note:e.note}));
   $("eventsSide").textContent = S.serverEvents ? "서버 저장분" : "앱을 연 뒤";
   if(!list.length){ ul.innerHTML = '<li><p class="empty">아직 내역이 없어요.</p></li>'; return; }
   list.slice(0, 20).forEach(e => {
     const li = document.createElement("li"); li.dataset.pos = e.pos;
-    const tm = document.createElement("time"); tm.textContent = hhmm(e.t) + (e.mode==="manual" ? " · 수동" : " · 자동");
-    const b = document.createElement("b"); b.textContent = POS_SHORT[e.pos] || e.pos;
+    const tm = document.createElement("time"); tm.textContent = hhmm(e.t) + (e.note ? " · 알림" : e.mode==="manual" ? " · 수동" : " · 자동");
+    const b = document.createElement("b"); b.textContent = e.note || POS_SHORT[e.pos] || e.pos;
     const sp = document.createElement("span"); sp.textContent = e.reason || "";
     li.append(tm, b, sp); ul.append(li);
   });
@@ -680,9 +736,11 @@ function publish(suffix, obj, retain){
   client.publish(settings.base + "/" + suffix, JSON.stringify(obj), {qos:1, retain:!!retain});
   return true;
 }
+function newId(){ return Math.random().toString(36).slice(2, 10); }
 function sendCmd(cmd, msg){
-  if(!publish("window/cmd", {cmd})) return;
-  S.pending = {cmd, at:Date.now()};     // 보드 응답 전이라도 화면을 먼저 바꿈
+  const id = newId();
+  if(!publish("window/cmd", {cmd, id})) return;
+  S.pending = {cmd, id, at:Date.now()};     // 보드 응답 전이라도 화면을 먼저 바꿈
   S.mode = "manual";
   if(navigator.vibrate) navigator.vibrate(15);
   toast(msg);
@@ -691,22 +749,46 @@ function sendCmd(cmd, msg){
 $("btnOpen").onclick  = () => sendCmd("open",  "열기 전송 · 자동 운전 꺼짐");
 $("btnClose").onclick = () => sendCmd("close", "닫기 전송 · 자동 운전 꺼짐");
 $("btnStop").onclick  = () => sendCmd("stop",  "멈춤 전송");
+$("btnReset").onclick = () => sendCmd("reset", "오류 해제 요청");
 $("modeSwitch").onclick = () => {
   const on = $("modeSwitch").getAttribute("aria-checked") !== "true";
-  if(publish("window/mode", {mode: on ? "auto" : "manual"}, true)){ S.mode = on ? "auto" : "manual"; if(on) S.pending = null; toast(on ? "자동 운전 켜짐" : "자동 운전 꺼짐"); render(); }
+  if(publish("window/mode", {mode: on ? "auto" : "manual", id:newId()}, true)){ S.mode = on ? "auto" : "manual"; if(on) S.pending = null; toast(on ? "자동 운전 켜짐" : "자동 운전 꺼짐"); render(); }
 };
 
 // ---------------- 자동 규칙 ----------------
-const CFG_KEYS = ["outPm25Max","pmDiffOpen","pmDiffClose","vocOpen","vocClose","tempMin","tempMax","minIntervalSec"];
-function fillCfg(){ CFG_KEYS.forEach(k => $("c-"+k).value = S.cfg[k]); $("c-rainCloseInManual").checked = !!S.cfg.rainCloseInManual; }
+const CFG_KEYS = Object.keys(CFG_DEFAULT).filter(k => k !== "rainCloseInManual");
+function fillCfg(){ CFG_KEYS.forEach(k => { if($("c-"+k)) $("c-"+k).value = S.cfg[k] ?? CFG_DEFAULT[k]; }); $("c-rainCloseInManual").checked = S.cfg.rainCloseInManual !== false; }
 $("cfgReset").onclick = () => { S.cfg = Object.assign({}, CFG_DEFAULT); fillCfg(); toast("기본값을 채웠어요. 저장을 눌러야 보드에 반영돼요"); };
+// 보드의 checkSettings 와 같은 검사
+function cfgError(c){
+  const r = (v,lo,hi) => typeof v === "number" && isFinite(v) && v >= lo && v <= hi;
+  if(!r(c.outPm25Max,5,200)) return ["outPm25Max","바깥 PM2.5 기준은 5~200 사이로 넣어 주세요"];
+  if(!r(c.outPm10Max,10,400)) return ["outPm10Max","바깥 PM10 기준은 10~400 사이로 넣어 주세요"];
+  if(!r(c.tempMin,-20,30) || !r(c.tempMax,10,45) || c.tempMin + 3 > c.tempMax) return ["tempMin","최저 온도는 최고 온도보다 3도 이상 낮아야 해요"];
+  if(!r(c.maxTempDiff,2,40)) return ["maxTempDiff","온도 차이는 2~40 사이로 넣어 주세요"];
+  if(!r(c.inPm25Open,1,500) || !r(c.inPm25Close,0,499) || c.inPm25Close >= c.inPm25Open) return ["inPm25Close","실내 PM2.5 끝 값은 시작 값보다 작아야 해요"];
+  if(!r(c.pmDiffOpen,1,200) || !r(c.pmDiffClose,0,199) || c.pmDiffClose >= c.pmDiffOpen) return ["pmDiffClose","차이 끝 값은 시작 값보다 작아야 해요"];
+  if(!r(c.vocOpen,2,500) || !r(c.vocClose,1,499) || c.vocClose >= c.vocOpen) return ["vocClose","VOC 끝 값은 시작 값보다 작아야 해요"];
+  if(!r(c.openStableSec,0,600)) return ["openStableSec","유지 시간은 0~600초로 넣어 주세요"];
+  if(!r(c.minIntervalSec,0,3600)) return ["minIntervalSec","재개방 시간은 0~3600초로 넣어 주세요"];
+  if(!r(c.rainDrySec,0,3600)) return ["rainDrySec","비 그친 뒤 시간은 0~3600초로 넣어 주세요"];
+  if(!r(c.staleSec,10,600)) return ["staleSec","센서 끊김 시간은 10~600초로 넣어 주세요"];
+  if(!r(c.stopHoldMin,0,240)) return ["stopHoldMin","정지 유지 시간은 0~240분으로 넣어 주세요"];
+  return null;
+}
 $("cfgSave").onclick = () => {
   const c = {};
-  for(const k of CFG_KEYS){ const v = parseFloat($("c-"+k).value); if(isNaN(v)){ toast("빈 칸이 있어요. 숫자를 넣어 주세요"); $("c-"+k).focus(); return; } c[k] = k==="minIntervalSec" ? Math.round(v) : v; }
-  if(c.tempMin >= c.tempMax){ toast("최저 온도가 최고 온도보다 낮아야 해요"); return; }
-  if(c.pmDiffClose >= c.pmDiffOpen){ toast("닫기 차이는 열기 차이보다 작아야 해요"); return; }
+  for(const k of CFG_KEYS){ const v = parseFloat($("c-"+k).value); if(isNaN(v)){ toast("빈 칸이 있어요. 숫자를 넣어 주세요"); $("c-"+k).focus(); return; } c[k] = INT_KEYS.includes(k) ? Math.round(v) : v; }
   c.rainCloseInManual = $("c-rainCloseInManual").checked;
-  if(publish("window/config", c, true)){ Object.assign(S.cfg, c); toast("보드에 저장했어요"); render(); }
+  const err = cfgError(c);
+  if(err){ toast(err[1]); $("c-"+err[0]).focus(); return; }
+  const id = newId();
+  if(publish("window/config", Object.assign({id}, c), true)){
+    Object.assign(S.cfg, c); S.cfgPending = id;
+    toast("보드로 보냈어요. 저장 확인을 기다리는 중…");
+    setTimeout(() => { if(S.cfgPending === id){ S.cfgPending = null; toast("보드의 저장 확인이 없어요. 창문 유닛 연결을 확인해 주세요"); } }, 8000);
+    render();
+  }
 };
 
 // ---------------- 연결 ----------------
@@ -757,45 +839,101 @@ $("btnDisconnect").onclick = () => { disconnect(); toast("연결을 끊었어요
 $("connPill").onclick = () => { go("settings"); $("connDetails").open = true; };
 
 // ---------------- 데모 모드 ----------------
+// 창문 보드 펌웨어(AirSync_window v2)의 판단 순서를 그대로 옮긴 가짜 보드
 function startDemo(){
   disconnect(); resetData(); demo = true; setPill("demo","데모"); $("connBanner").hidden = true;
-  let t = 0, winPos = "closed", moveUntil = 0, target = null;
   S.status = {indoor:"online", outdoor:"online", window:"online"};
-  const D = {mode:"auto", reason:"시작"};
-  demoCommand = (suffix, obj) => {
-    // 실제 보드처럼 0.4초 뒤에 응답
-    setTimeout(() => {
-      if(suffix==="window/cmd"){
-        D.mode = "manual"; D.reason = "앱 명령";
-        if(obj.cmd==="stop"){ target = null; if(winPos==="opening"||winPos==="closing") winPos = "middle"; }
-        else { const tg = obj.cmd==="open" ? "open" : "closed"; if(winPos!==tg){ target = tg; winPos = tg==="open" ? "opening" : "closing"; moveUntil = Date.now()+4000; } }
-      }
-      if(suffix==="window/mode") D.mode = obj.mode;
-      if(suffix==="window/config") Object.assign(S.cfg, obj);
-      tick(true);
-    }, 400);
-  };
-  function tick(onlyState){
-    if(!onlyState){
-      t++;
-      const inPm = Math.max(3, 28 + 16*Math.sin(t/9) + (winPos==="open" ? -10 : 0) + Math.random()*3);
-      const outPm = Math.max(2, 14 + 4*Math.sin(t/14) + Math.random()*2);
-      const rain = (t % 90) > 80;
-      handle("indoor/data", JSON.stringify({pm25:+inPm.toFixed(1),pm10:+(inPm*1.2).toFixed(1),temp:+(24.5+Math.sin(t/20)).toFixed(1),hum:+(46+3*Math.sin(t/17)).toFixed(1),voc:Math.round(110+40*Math.sin(t/11))}));
-      handle("outdoor/data", JSON.stringify({temp:+(17+Math.sin(t/25)).toFixed(1),hum:rain?88:61,pm25:Math.round(outPm),pm10:Math.round(outPm*1.6),rain}));
-      if(!target){
-        const diff = inPm - outPm;
-        if(rain && winPos!=="closed" && (D.mode==="auto" || S.cfg.rainCloseInManual)){ target="closed"; winPos="closing"; moveUntil=Date.now()+4000; D.reason="비 감지"; }
-        else if(D.mode==="auto" && !rain && diff >= S.cfg.pmDiffOpen && winPos==="closed"){ target="open"; winPos="opening"; moveUntil=Date.now()+4000; D.reason="실내 미세먼지가 더 많음, 환기"; }
-        else if(D.mode==="auto" && !rain && diff <= S.cfg.pmDiffClose && winPos==="open"){ target="closed"; winPos="closing"; moveUntil=Date.now()+4000; D.reason="환기 완료"; }
+  const TXT = {START:"시작", FAULT_TIMEOUT:"모터 오류: 시간 안에 끝까지 가지 못함", FAULT_SWITCH:"끝 스위치 이상: 2개가 동시에 눌림",
+    USER_STOP:"사용자 정지", RAIN:"비 감지", INDOOR_INVALID:"실내 센서 이상", OUTDOOR_INVALID:"실외 통신 끊김",
+    OUTSIDE_PM25:"실외 초미세먼지 나쁨", OUTSIDE_PM10:"실외 미세먼지 나쁨", OUTSIDE_TEMP:"실외 온도 범위 초과", TEMP_DIFF:"실내외 온도 차이 큼",
+    MANUAL:"수동 운전 중", MANUAL_OPEN:"앱 명령: 열기", MANUAL_CLOSE:"앱 명령: 닫기", NO_DEMAND:"환기 필요 없음", VENT_DONE:"환기 완료",
+    WAIT_DRY:"비 그친 뒤 대기 중", WAIT_INTERVAL:"재개방 대기 중", WAIT_STABLE:"개방 조건 확인 중", VENT_PM:"실내 미세먼지 높음, 환기", VENT_VOC:"실내 VOC 높음, 환기"};
+  const B = {x:0, dir:0, pos:"closed", auto:true, stop:false, stopAt:0, fault:"", why:"START", waitEnd:0,
+             pm:false, voc:false, cand:false, candAt:0, lastClose:0, lastWet:0, inp:null, out:null};
+  const MOVE_MS = 3000;
+  const now = () => Date.now();
+  const say = (w, end) => { B.why = w; B.waitEnd = end || 0; };
+  const ack = (id, cmd, ok, code, msg) => handle("window/ack", JSON.stringify({id, cmd, ok, code, msg}));
+  const move = (dir, w) => { say(w); if(B.fault) return; if(dir>0 && B.x>=1){ B.dir=0; B.pos="open"; return; } if(dir<0 && B.x<=0){ B.dir=0; B.pos="closed"; return; }
+    if(B.dir===dir) return; B.dir = dir; B.pos = dir>0 ? "opening" : "closing"; if(dir<0) B.lastClose = now(); };
+  const openish = () => !(B.pos==="closed" || B.pos==="closing");
+  const block = stay => { const c = S.cfg, o = B.out, i = B.inp, m = stay ? [0,0,0] : [5,10,1];
+    if(o.pm25 > c.outPm25Max - m[0]) return "OUTSIDE_PM25"; if(o.pm10 > c.outPm10Max - m[1]) return "OUTSIDE_PM10";
+    if(o.temp < c.tempMin + m[2] || o.temp > c.tempMax - m[2]) return "OUTSIDE_TEMP"; if(Math.abs(i.temp - o.temp) > c.maxTempDiff - m[2]) return "TEMP_DIFF"; return null; };
+  const protect = w => { B.cand = false; if(openish()) move(-1, w); else say(w); };
+  function decide(){
+    const c = S.cfg, t = now(), i = B.inp, o = B.out;
+    if(i && o){ const d = i.pm25 - o.pm25;
+      if(i.pm25 >= c.inPm25Open && d >= c.pmDiffOpen) B.pm = true; else if(i.pm25 <= c.inPm25Close || d <= c.pmDiffClose) B.pm = false;
+      if(i.voc >= c.vocOpen) B.voc = true; else if(i.voc <= c.vocClose) B.voc = false; }
+    if(B.fault) return say(B.fault==="timeout" ? "FAULT_TIMEOUT" : "FAULT_SWITCH");
+    if(B.stop && t - B.stopAt < c.stopHoldMin*60000) return say("USER_STOP");
+    if(o && o.rain && (B.auto || c.rainCloseInManual)) return protect("RAIN");
+    if(!B.auto) return say(B.stop ? "USER_STOP" : (B.why==="MANUAL_OPEN"||B.why==="MANUAL_CLOSE") ? B.why : "MANUAL");
+    const stay = B.pos==="open" || B.pos==="opening";
+    const bl = block(stay); if(bl) return protect(bl);
+    if(!B.pm && !B.voc){ B.cand = false; return openish() ? move(-1,"VENT_DONE") : say("NO_DEMAND"); }
+    const vent = B.pm ? "VENT_PM" : "VENT_VOC";
+    if(stay) return say(vent);
+    if(!B.cand){ B.cand = true; B.candAt = t; }
+    if(B.lastWet && t - B.lastWet < c.rainDrySec*1000){ B.cand = false; return say("WAIT_DRY", B.lastWet + c.rainDrySec*1000); }
+    if(B.lastClose && t - B.lastClose < c.minIntervalSec*1000) return say("WAIT_INTERVAL", B.lastClose + c.minIntervalSec*1000);
+    if(t - B.candAt < c.openStableSec*1000) return say("WAIT_STABLE", B.candAt + c.openStableSec*1000);
+    move(1, vent);
+  }
+  function publishState(){
+    const t = now();
+    handle("window/state", JSON.stringify({pos:B.pos, mode:B.auto?"auto":"manual", reason:TXT[B.why], code:B.why, fault:B.fault, stop:B.stop,
+      waitSec: B.waitEnd > t ? Math.ceil((B.waitEnd - t)/1000) : 0, pmDemand:B.pm, vocDemand:B.voc, ver:2}));
+  }
+  demoCommand = (suffix, obj) => setTimeout(() => {          // 실제 보드처럼 0.3초 뒤에 응답
+    const id = obj.id || "";
+    if(suffix==="window/cmd"){
+      const c = obj.cmd;
+      if(c==="stop"){ B.dir = 0; if(!B.fault) B.pos = B.x>=1 ? "open" : B.x<=0 ? "closed" : "middle"; B.stop = true; B.stopAt = now(); B.auto = false; if(!B.fault) say("USER_STOP"); ack(id,c,true,"STOPPED","정지했어요"); }
+      else if(c==="reset"){ if(!B.fault) ack(id,c,true,"NO_FAULT","오류가 없어요"); else { B.fault = ""; B.pos = B.x>=1?"open":B.x<=0?"closed":"middle"; B.stop = true; B.stopAt = now(); B.auto = false; say("USER_STOP"); ack(id,c,true,"RESET","오류를 해제했어요. 열기/닫기나 자동 운전을 골라 주세요"); } }
+      else if(B.fault) ack(id,c,false,"FAULT","구동 오류 상태예요. 원인을 확인하고 '오류 해제'를 먼저 눌러 주세요");
+      else if(c==="close"){ B.stop = false; B.auto = false; if(B.x<=0){ say("MANUAL_CLOSE"); ack(id,c,true,"ALREADY","이미 닫혀 있어요"); } else { move(-1,"MANUAL_CLOSE"); ack(id,c,true,"MOVING","닫는 중이에요"); } }
+      else if(c==="open"){
+        if(B.out && B.out.rain) ack(id,c,false,"RAIN","비가 감지돼서 열 수 없어요");
+        else { const bl = B.out && B.inp ? block(true) : null;
+          if(bl) ack(id,c,false,bl,TXT[bl] + " 상태라서 열 수 없어요");
+          else { B.stop = false; B.auto = false; if(B.x>=1){ say("MANUAL_OPEN"); ack(id,c,true,"ALREADY","이미 열려 있어요"); } else { move(1,"MANUAL_OPEN"); ack(id,c,true,"MOVING","여는 중이에요"); } } }
       }
     }
-    if(target && Date.now() >= moveUntil){ winPos = target; target = null; }
-    handle("window/state", JSON.stringify({pos:winPos, mode:D.mode, reason:D.reason}));
+    if(suffix==="window/mode"){ const on = obj.mode==="auto"; if(on) B.stop = false; if(B.auto !== on){ B.auto = on; B.cand = false; } ack(id, obj.mode, true, on?"AUTO":"MANUAL", on?"자동 운전을 켰어요":"자동 운전을 껐어요"); }
+    if(suffix==="window/config"){ ack(id,"config",true,"SAVED","보드에 저장했어요"); }
+    decide(); publishState();
+  }, 300);
+  // 가짜 공기: 실내가 서서히 탁해졌다가 환기되면 깨끗해지고, 가끔 비가 옴
+  let t = 0, inDirt = 38;
+  function sensors(){
+    t++;
+    const open = B.x > 0.5;
+    inDirt += open ? -0.6 : 0.25; inDirt = Math.max(8, Math.min(60, inDirt));
+    const outPm = Math.max(3, 9 + 3*Math.sin(t/40) + Math.random()*1.5);
+    const rain = (t % 600) > 560;
+    if(rain) B.lastWet = now();
+    B.inp = {pm25:+(inDirt + Math.random()*2).toFixed(1), pm10:+(inDirt*1.25).toFixed(1), temp:+(24.5+Math.sin(t/200)).toFixed(1), hum:+(46+3*Math.sin(t/170)).toFixed(1), voc:Math.round(105+30*Math.sin(t/90))};
+    B.out = {pm25:Math.round(outPm), pm10:Math.round(outPm*1.7), temp:+(17+Math.sin(t/250)).toFixed(1), hum:rain?88:61, rain, rainPct: rain ? 40 : 2};
+    if(t % 5 === 1 || rain !== B.lastRain){ handle("indoor/data", JSON.stringify(B.inp)); handle("outdoor/data", JSON.stringify(B.out)); }
+    B.lastRain = rain;
   }
-  for(let k=60;k>0;k--){ const tt = Date.now()-k*30000; S.hist.push({t:tt, i:+(28+16*Math.sin((t-k)/9)+Math.random()*3).toFixed(1), o:Math.round(14+4*Math.sin((t-k)/14)+Math.random()*2)}); }
-  tick(); demoTimer = setInterval(() => tick(false), 1000);
-  updateRangeUI(); toast("데모 실행 중 · 가짜 데이터");
+  function physics(dtMs){
+    if(B.dir && !B.fault){ B.x = Math.max(0, Math.min(1, B.x + B.dir*dtMs/MOVE_MS));
+      if(B.dir>0 && B.x>=1){ B.dir = 0; B.pos = "open"; } if(B.dir<0 && B.x<=0){ B.dir = 0; B.pos = "closed"; } }
+  }
+  let lastPub = "";
+  sensors();
+  for(let k=60;k>0;k--){ const tt = Date.now()-k*30000; S.hist.push({t:tt, i:+(30+8*Math.sin(k/9)+Math.random()*3).toFixed(1), o:Math.round(9+3*Math.sin(k/14)+Math.random()*2)}); }
+  demoTimer = setInterval(() => {
+    physics(250);
+    if(++B.tick % 4 === 0){ sensors(); decide(); }
+    const snap = JSON.stringify([B.pos,B.auto,B.why,B.fault,B.stop,B.pm,B.voc]);
+    if(snap !== lastPub || B.tick % 20 === 0){ lastPub = snap; publishState(); }
+  }, 250);
+  B.tick = 0; decide(); publishState();
+  updateRangeUI(); toast("데모 실행 중 · 가짜 데이터 (판단은 실제 보드와 같은 규칙)");
 }
 $("btnDemo").onclick = () => { startDemo(); go("home"); };
 $("demoBtn").onclick = () => startDemo();
