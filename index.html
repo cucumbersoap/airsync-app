@@ -265,6 +265,7 @@ details[open] summary{margin-bottom:12px}
         <button type="submit" class="btn main" id="keySubmit">제품 등록</button>
         <div class="hint">제품키는 <b>AS-</b>로 시작하는 24자리예요. 키를 넣으면 이 휴대폰에서는 <b>그 제품의 센서와 창문만</b> 보고 조작할 수 있어요.</div>
         <button type="button" class="btn" id="gateInstall" hidden>휴대폰에 앱으로 설치하기</button>
+        <a href="download.html" id="gateDownload" style="font-size:13px;font-weight:600;color:var(--main)">앱 받는 곳 (안드로이드 APK · 아이폰 안내)</a>
         <ol class="install-steps hint" id="gateIos" hidden style="padding-left:30px">
           <li>Safari 아래쪽 <b>공유 버튼(□↑)</b>을 눌러요</li>
           <li><b>홈 화면에 추가</b> → <b>추가</b>를 눌러요</li>
@@ -414,6 +415,7 @@ details[open] summary{margin-bottom:12px}
         <div class="view">
           <p class="hint-text" id="installState" style="margin:0;color:var(--sub);font-size:13.5px"></p>
           <button type="button" class="btn main" id="btnInstall" hidden>지금 설치하기</button>
+          <a class="btn" id="apkLink" href="download.html" style="display:flex;align-items:center;justify-content:center;text-decoration:none" hidden>안드로이드 앱(APK) 받는 곳</a>
           <ol class="install-steps" id="installIos" hidden>
             <li>Safari로 이 앱을 열어요</li>
             <li>아래쪽 <b>공유 버튼(□↑)</b>을 눌러요</li>
@@ -1040,6 +1042,7 @@ function updateInstallUI(){
   $("installIos").hidden = inst || !isIOS;
   $("installAndroid").hidden = inst || isIOS || !!installEvt;
   $("gateInstall").hidden = inst || !(installEvt || isIOS);
+  $("apkLink").hidden = isIOS || inst;
 }
 function doInstall(){
   if(installEvt){ installEvt.prompt(); installEvt.userChoice.finally(() => { installEvt = null; updateInstallUI(); }); }
