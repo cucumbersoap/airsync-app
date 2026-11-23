@@ -217,10 +217,64 @@ details[open] summary{margin-bottom:12px}
 
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,16px);opacity:0;pointer-events:none;background:var(--ink);color:var(--bg);padding:10px 15px;border-radius:12px;font-size:13.5px;font-weight:500;max-width:calc(100% - 28px);transition:.25s;z-index:9}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+/* 시작 화면: 서버 확인 / 서버 꺼짐 / 제품 등록 */
+.gate{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;padding:calc(24px + env(safe-area-inset-top)) 22px calc(24px + env(safe-area-inset-bottom));overflow:auto}
+.gate-in{width:100%;max-width:380px;display:grid;gap:16px;text-align:center}
+.gate .logo{width:64px;height:64px;border-radius:20px;margin:0 auto;cursor:default;user-select:none;-webkit-user-select:none}
+.gate .logo svg{width:38px;height:38px}
+.gate h1{margin:0;font-size:22px;letter-spacing:-.02em}
+.gate p{margin:0;color:var(--sub);font-size:14px}
+.gate .state{display:inline-flex;align-items:center;gap:8px;justify-self:center;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:600}
+.gate .state i{width:8px;height:8px;border-radius:50%;background:var(--none)}
+.gate .state[data-s="off"] i{background:var(--vbad)} .gate .state[data-s="try"] i{background:var(--bad);animation:blink 1s infinite} .gate .state[data-s="on"] i{background:var(--ok)}
+.gate .keybox{font-family:var(--num);font-size:19px;font-weight:700;letter-spacing:.06em;text-align:center;text-transform:uppercase;padding:14px 12px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);width:100%}
+.gate .keybox:focus{outline:none;border-color:var(--main)}
+.keywrap{position:relative}
+.keypre{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-family:var(--num);font-size:19px;font-weight:700;color:var(--sub);pointer-events:none}
+.gate .keywrap .keybox{padding-left:52px;text-align:left;font-size:18px}
+.gate .err{color:var(--vbad);font-size:13px;font-weight:600;min-height:1.2em}
+.gate .btn{width:100%}
+.gate .hint{font-size:12.5px;color:var(--sub);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;text-align:left}
+.gate .hint b{color:var(--ink)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+.kv dt{color:var(--sub)} .kv dd{margin:0;font-weight:600;text-align:right;font-family:var(--num);word-break:break-all}
+.install-steps{margin:0;padding-left:20px;font-size:13.5px;color:var(--sub)}
+.install-steps b{color:var(--ink)}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <div class="gate-in">
+    <div class="logo" id="gateLogo" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 3v18M7 10c1.5-1 3 1 4.5 0M13 14c1.5-1 3 1 4.5 0"/></svg></div>
+    <div><h1 id="gateTitle">Air-Sync</h1><p id="gateSub">서버를 확인하는 중이에요…</p></div>
+    <span class="state" id="gateState" data-s="try"><i></i><span id="gateStateText">서버 확인 중</span></span>
+
+    <div id="gateServer" hidden>
+      <div style="display:grid;gap:12px">
+        <div class="hint"><b>AWS 서버(EC2)가 꺼져 있거나 응답하지 않아요.</b><br>서버를 켠 뒤 1~2분 기다리면 자동으로 다시 연결돼요. 서버가 꺼져 있는 동안에는 창문을 조작할 수 없어요.</div>
+        <button type="button" class="btn main" id="gateRetry">다시 확인</button>
+      </div>
+    </div>
+
+    <form id="gateRegister" hidden autocomplete="off">
+      <div style="display:grid;gap:12px">
+        <label for="keyInput" style="font-weight:700">제품키</label>
+        <div class="keywrap"><span class="keypre" aria-hidden="true">AS-</span><input id="keyInput" class="keybox" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="XXXXXX-XXXX-XXXX-XXXX" maxlength="40" aria-describedby="keyErr"></div>
+        <div class="err" id="keyErr" role="alert"></div>
+        <button type="submit" class="btn main" id="keySubmit">제품 등록</button>
+        <div class="hint">제품키는 <b>AS-</b>로 시작하는 24자리예요. 키를 넣으면 이 휴대폰에서는 <b>그 제품의 센서와 창문만</b> 보고 조작할 수 있어요.</div>
+        <button type="button" class="btn" id="gateInstall" hidden>휴대폰에 앱으로 설치하기</button>
+        <ol class="install-steps hint" id="gateIos" hidden style="padding-left:30px">
+          <li>Safari 아래쪽 <b>공유 버튼(□↑)</b>을 눌러요</li>
+          <li><b>홈 화면에 추가</b> → <b>추가</b>를 눌러요</li>
+          <li>홈 화면의 Air-Sync 아이콘으로 열고 제품키를 넣어요</li>
+        </ol>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div class="app">
 
   <header class="top">
@@ -233,7 +287,7 @@ details[open] summary{margin-bottom:12px}
   <main id="view-home" class="view">
     <div class="notice rain" id="rainBanner" hidden>☂ 바깥에 비가 와요. 창문을 닫습니다.</div>
     <div class="notice err" id="errBanner" hidden><span id="errText">창문 오류</span><button id="btnReset" type="button">오류 해제</button></div>
-    <div class="notice" id="connBanner" hidden><span id="connBannerText">브로커에 연결되지 않았어요.</span><button id="demoBtn" type="button">데모 실행</button></div>
+    <div class="notice" id="connBanner" hidden><span id="connBannerText">창문 시스템에 연결되지 않았어요.</span></div>
 
     <section class="sky" id="sky" data-pos="unknown" aria-label="창문 상태">
       <div class="sky-in">
@@ -340,14 +394,35 @@ details[open] summary{margin-bottom:12px}
 
     <section class="card" id="connCard">
       <details id="connDetails">
-        <summary>브로커 연결</summary>
+        <summary>내 제품</summary>
         <div class="view">
-          <div class="field"><label for="s-url">브로커 주소</label><input type="url" id="s-url" autocomplete="off" spellcheck="false"><small>공개 브로커: wss://broker.hivemq.com:8884/mqtt · AWS 서버: wss://서버주소/mqtt</small></div>
-          <div class="field"><label for="s-base">토픽 앞부분</label><input type="text" id="s-base" autocomplete="off" autocapitalize="off" spellcheck="false"><small>보드 config.h 의 MQTT_BASE 와 같게</small></div>
-          <div class="field"><label for="s-user">아이디</label><input type="text" id="s-user" autocomplete="off" autocapitalize="off"></div>
-          <div class="field"><label for="s-pass">비밀번호</label><input type="password" id="s-pass" autocomplete="off"><small>이 브라우저에만 저장돼요</small></div>
-          <div class="two"><button type="button" class="btn" id="btnDisconnect">연결 끊기</button><button type="button" class="btn main" id="btnConnect">저장 후 연결</button></div>
-          <button type="button" class="btn" id="btnDemo">데모 실행 (가짜 데이터)</button>
+          <dl class="kv">
+            <dt>제품</dt><dd id="pName">-</dd>
+            <dt>제품 ID</dt><dd id="pId">-</dd>
+            <dt>제품키</dt><dd id="pKey">-</dd>
+            <dt>서버</dt><dd id="pServer">-</dd>
+          </dl>
+          <div class="two"><button type="button" class="btn" id="btnUnpair">다른 제품 등록</button><button type="button" class="btn main" id="btnConnect">다시 연결</button></div>
+          <button type="button" class="btn" id="btnEndDemo" hidden>데모 끝내기</button>
+        </div>
+      </details>
+    </section>
+
+    <section class="card" id="installCard">
+      <details id="installDetails">
+        <summary>휴대폰에 앱으로 설치</summary>
+        <div class="view">
+          <p class="hint-text" id="installState" style="margin:0;color:var(--sub);font-size:13.5px"></p>
+          <button type="button" class="btn main" id="btnInstall" hidden>지금 설치하기</button>
+          <ol class="install-steps" id="installIos" hidden>
+            <li>Safari로 이 앱을 열어요</li>
+            <li>아래쪽 <b>공유 버튼(□↑)</b>을 눌러요</li>
+            <li><b>홈 화면에 추가</b> → <b>추가</b>를 눌러요</li>
+          </ol>
+          <ol class="install-steps" id="installAndroid" hidden>
+            <li>Chrome 오른쪽 위 <b>⋮ 메뉴</b>를 눌러요</li>
+            <li><b>앱 설치</b> (또는 홈 화면에 추가)를 눌러요</li>
+          </ol>
         </div>
       </details>
     </section>
@@ -419,7 +494,11 @@ details[open] summary{margin-bottom:12px}
 const $ = id => document.getElementById(id);
 
 // ---------------- 기본 설정 ----------------
-const DEFAULTS = {url:"wss://broker.hivemq.com:8884/mqtt", base:"airsync/cucumbersoap", user:"", pass:""};
+// ★ 서버 주소 (AWS EC2). 서버 주소가 바뀌면 여기만 고치기
+const SERVER_HOST = "15-164-131-52.sslip.io";
+const API = "https://" + SERVER_HOST + "/api";
+const BROKER = "wss://" + SERVER_HOST + "/mqtt";
+const KEY_RE = /^AS-([A-Z2-9]{6})-([A-Z2-9]{4})-([A-Z2-9]{4})-([A-Z2-9]{4})$/;
 const CFG_DEFAULT = {outPm25Max:35,outPm10Max:80,tempMin:5,tempMax:32,maxTempDiff:12,inPm25Open:35,pmDiffOpen:10,inPm25Close:20,pmDiffClose:3,vocOpen:200,vocClose:120,openStableSec:20,minIntervalSec:60,rainDrySec:300,staleSec:30,stopHoldMin:10,rainCloseInManual:true,motorTimeoutSec:5,motorDuty:160};
 const INT_KEYS = ["openStableSec","minIntervalSec","rainDrySec","staleSec","stopHoldMin","motorDuty"];
 const STALE = 60;            // 초: 이보다 오래된 값은 "오래됨"
@@ -428,7 +507,14 @@ const PENDING_MS = 6000;     // 버튼을 누른 뒤 보드 응답을 기다리�
 function load(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
 function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 
-let settings = Object.assign({}, DEFAULTS, load("airsync.settings", {}));
+let product = load("airsync.product", null);   // {pid, secret, name}
+let settings = {url:BROKER, base:"", user:"", pass:""};
+function useProduct(p){
+  product = p;
+  settings = p ? {url:BROKER, base:"airsync/" + p.pid.toLowerCase(), user:p.pid, pass:p.secret} : {url:BROKER, base:"", user:"", pass:""};
+}
+useProduct(product);
+try{ localStorage.removeItem("airsync.settings"); }catch(e){}   // 예전 버전의 수동 연결 설정은 지움
 let client = null, demo = false, demoTimer = null, demoCommand = () => {};
 const S = {
   indoor:null, inTs:0, outdoor:null, outTs:0, win:null, winTs:0,
@@ -685,14 +771,10 @@ function renderEvents(){
 }
 
 // ---------------- 서버 기록 (AWS) ----------------
-function apiBase(){
-  const m = /^wss:\/\/([^\/:]+)(:443)?\/mqtt$/.exec(settings.url || "");
-  if(!m || /hivemq\.com$/.test(m[1])) return null;     // 공개 브로커에는 기록 서버가 없음
-  return "https://" + m[1] + "/api";
-}
+function apiBase(){ return product ? API : null; }
 function apiGet(path){
   return fetch(apiBase() + path, {headers:{Authorization:"Basic " + btoa(unescape(encodeURIComponent(settings.user + ":" + settings.pass)))}})
-    .then(r => { if(r.status===401) throw new Error("아이디/비밀번호 확인"); if(!r.ok) throw new Error("서버 오류 " + r.status); return r.json(); });
+    .then(r => { if(r.status===401){ onKeyRejected(); throw new Error("제품키 확인"); } if(!r.ok) throw new Error("서버 오류 " + r.status); return r.json(); });
 }
 function updateRangeUI(){
   const hasApi = !!apiBase() && !demo;
@@ -803,21 +885,29 @@ $("cfgSave").onclick = () => {
 
 // ---------------- 연결 ----------------
 function setPill(s, text){ $("connPill").dataset.s = s; $("connText").textContent = text; }
-function fillSettings(){ $("s-url").value = settings.url; $("s-base").value = settings.base; $("s-user").value = settings.user; $("s-pass").value = settings.pass; }
+function maskKey(p){ const s = p.secret; return "AS-" + p.pid + "-••••-••••-" + s.slice(8); }
+function fillSettings(){
+  $("pName").textContent = demo ? "데모 (가짜 데이터)" : product ? (product.name || "Air-Sync") : "-";
+  $("pId").textContent = demo ? "-" : product ? product.pid : "-";
+  $("pKey").textContent = demo ? "-" : product ? maskKey(product) : "-";
+  $("pServer").textContent = demo ? "사용 안 함" : SERVER_HOST;
+  $("btnEndDemo").hidden = !demo; $("btnUnpair").hidden = demo; $("btnConnect").hidden = demo;
+}
 function resetData(){ Object.assign(S, {indoor:null,inTs:0,outdoor:null,outTs:0,win:null,winTs:0,mode:null,pending:null,hist:[],serverHist:[],events:[],serverEvents:null,status:{indoor:null,outdoor:null,window:null}}); renderEvents(); }
 function showConnBanner(t){ $("connBannerText").textContent = t; $("connBanner").hidden = false; }
 function disconnect(){
   if(client){ try{ client.end(true); }catch(e){} client = null; }
   if(demoTimer){ clearInterval(demoTimer); demoTimer = null; }
-  demo = false; setPill("off","연결 안 됨"); showConnBanner("브로커에 연결되지 않았어요.");
+  demo = false; setPill("off","연결 안 됨"); showConnBanner("창문 시스템에 연결되지 않았어요.");
   updateRangeUI(); render();
 }
 function connect(){
   disconnect(); resetData();
   if(typeof window.mqtt === "undefined"){ setPill("off","연결 불가"); showConnBanner("통신 라이브러리를 불러오지 못했어요. 인터넷 연결을 확인해 주세요."); return; }
   setPill("try","연결 중…"); $("connBanner").hidden = true;
-  const failTimer = setTimeout(() => { if(!client || !client.connected) showConnBanner("브로커에 연결하지 못했어요. 설정에서 주소와 비밀번호를 확인해 주세요."); }, 9000);
+  const failTimer = setTimeout(() => { if(!client || !client.connected){ showConnBanner("연결하지 못했어요. 서버를 확인하는 중…"); checkServer(); } }, 9000);
   try{
+    if(!product) return;
     client = mqtt.connect(settings.url, {
       clientId: "airsync-app-" + Math.random().toString(16).slice(2,10),
       username: settings.user || undefined, password: settings.pass || undefined,
@@ -825,33 +915,153 @@ function connect(){
     });
   }catch(e){ clearTimeout(failTimer); setPill("off","주소 오류"); showConnBanner("브로커 주소 형식이 맞지 않아요: " + e.message); return; }
   client.on("connect", () => {
-    clearTimeout(failTimer); setPill("on", apiBase() ? "서버 연결됨" : "연결됨"); $("connBanner").hidden = true;
+    clearTimeout(failTimer); setPill("on", "연결됨"); $("connBanner").hidden = true;
     client.subscribe(settings.base + "/#", {qos:1});
     loadEvents(); render();
   });
   client.on("reconnect", () => setPill("try","다시 연결 중…"));
-  client.on("offline", () => { setPill("off","연결 끊김"); render(); });
-  client.on("error", err => { setPill("off","연결 오류"); showConnBanner("연결 오류: " + (err && err.message || err)); });
+  client.on("offline", () => { setPill("off","연결 끊김"); render(); checkServer(); });
+  client.on("error", err => {
+    const m = String(err && err.message || err);
+    if(/not authorized|bad user|unauthori/i.test(m)) return onKeyRejected();
+    setPill("off","연결 오류"); showConnBanner("연결 오류: " + m);
+  });
   client.on("message", (topic, payload) => {
     if(!topic.startsWith(settings.base + "/")) return;
     handle(topic.slice(settings.base.length+1), payload.toString());
   });
   updateRangeUI();
 }
-$("btnConnect").onclick = () => {
-  const url = $("s-url").value.trim(), base = $("s-base").value.trim().replace(/\/+$/,"");
-  if(!/^wss?:\/\//.test(url)){ toast("주소는 wss:// 로 시작해야 해요"); $("s-url").focus(); return; }
-  if(!base || /[#+]/.test(base)){ toast("토픽 앞부분을 확인해 주세요 (# + 는 쓸 수 없어요)"); $("s-base").focus(); return; }
-  settings = {url, base, user:$("s-user").value.trim(), pass:$("s-pass").value};
-  save("airsync.settings", settings); connect(); toast("저장했어요. 연결 중…"); go("home");
+$("btnConnect").onclick = () => { boot(); toast("다시 연결하는 중…"); };
+$("btnUnpair").onclick = () => {
+  if(!confirm("이 휴대폰에서 지금 제품 등록을 해제할까요? 다시 쓰려면 제품키를 다시 넣어야 해요.")) return;
+  disconnect(); useProduct(null); save("airsync.product", null); fillSettings(); showGate("register");
 };
-$("btnDisconnect").onclick = () => { disconnect(); toast("연결을 끊었어요"); };
+$("btnEndDemo").onclick = () => { disconnect(); boot(); };
+
+// ---------------- 서버 확인 · 제품 등록 ----------------
+let serverOk = false, pingTimer = null, pingFails = 0, gateMode = null;
+function gateState(s, t){ $("gateState").dataset.s = s; $("gateStateText").textContent = t; }
+function showGate(mode, msg){
+  gateMode = mode; $("gate").hidden = false;
+  $("gateServer").hidden = mode !== "server"; $("gateRegister").hidden = mode !== "register";
+  if(mode === "checking"){ $("gateTitle").textContent = "Air-Sync"; $("gateSub").textContent = "서버를 확인하는 중이에요…"; gateState("try","서버 확인 중"); }
+  if(mode === "server"){ $("gateTitle").textContent = "서버가 꺼져 있어요"; $("gateSub").textContent = "AWS 서버가 켜져 있을 때만 앱을 쓸 수 있어요";
+    gateState("off", "응답 없음 · " + new Date().toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit",second:"2-digit"}) + " 확인"); }
+  if(mode === "register"){ $("gateTitle").textContent = "제품 등록"; $("gateSub").textContent = "제품에 붙어 있는 제품키를 넣어 주세요"; gateState("on","서버 연결됨");
+    $("keyErr").textContent = msg || ""; updateInstallUI(); setTimeout(() => $("keyInput").focus(), 50); }
+}
+function hideGate(){ gateMode = null; $("gate").hidden = true; }
+function ping(){
+  const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 6000);
+  return fetch(API + "/ping?t=" + Date.now(), {cache:"no-store", signal:ctl.signal})
+    .then(r => { clearTimeout(t); if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(j => !!(j && j.ok)).catch(() => false);
+}
+function login(pid, secret){
+  return fetch(API + "/login", {cache:"no-store", headers:{Authorization:"Basic " + btoa(pid + ":" + secret)}})
+    .then(r => r.json().catch(() => ({})).then(j => ({status:r.status, body:j})));
+}
+// 서버 상태 확인. 꺼져 있으면 잠금 화면
+function checkServer(){
+  if(demo) return Promise.resolve(true);
+  return ping().then(ok => {
+    if(ok){ pingFails = 0; if(!serverOk){ serverOk = true; if(gateMode === "server") boot(); } return true; }
+    pingFails++;
+    if(pingFails >= 2 || !serverOk || gateMode){ serverOk = false; if(client){ try{ client.end(true); }catch(e){} client = null; } setPill("off","서버 꺼짐"); showGate("server"); }
+    else setTimeout(checkServer, 3000);
+    return false;
+  });
+}
+function startPing(){ clearInterval(pingTimer); pingTimer = setInterval(() => { if(!demo && !document.hidden) checkServer(); }, 15000); }
+document.addEventListener("visibilitychange", () => { if(!document.hidden && !demo) checkServer(); });
+function onKeyRejected(){
+  if(demo) return;
+  disconnect(); useProduct(null); save("airsync.product", null); fillSettings();
+  showGate("register", "등록된 제품키가 더 이상 맞지 않아요. 다시 넣어 주세요.");
+}
+// 시작: 서버 확인 -> 제품 확인 -> 연결
+function boot(){
+  if(demo) return;
+  showGate("checking"); serverOk = false; pingFails = 0;
+  ping().then(ok => {
+    if(!ok){ setPill("off","서버 꺼짐"); return showGate("server"); }
+    serverOk = true;
+    if(!product) return showGate("register");
+    return login(product.pid, product.secret).then(r => {
+      if(r.status === 401) return onKeyRejected();
+      if(r.status !== 200){ setPill("off","서버 꺼짐"); return showGate("server"); }
+      if(r.body.name && r.body.name !== product.name){ product.name = r.body.name; save("airsync.product", product); }
+      hideGate(); fillSettings(); connect();
+    }).catch(() => showGate("server"));
+  });
+}
+$("gateRetry").onclick = () => { gateState("try","다시 확인 중…"); boot(); };
+// 키 입력: 대문자, 헷갈리는 글자 정리, 자동 하이픈
+// 입력칸에는 AS- 뒤의 18자리만. 키 전체(AS-...)를 붙여 넣어도 알아서 정리
+function normKey(v){
+  let c = v.toUpperCase().replace(/[^A-Z0-9]/g,"");
+  if(c.length > 18 && c.startsWith("AS")) c = c.slice(2);
+  c = c.slice(0,18);
+  return [c.slice(0,6), c.slice(6,10), c.slice(10,14), c.slice(14,18)].filter(Boolean).join("-");
+}
+$("keyInput").addEventListener("input", e => { const el = e.target, v = normKey(el.value); if(v !== el.value) el.value = v; $("keyErr").textContent = ""; });
+$("gateRegister").onsubmit = e => {
+  e.preventDefault();
+  const v = "AS-" + normKey($("keyInput").value), m = KEY_RE.exec(v);
+  if(!m){ $("keyErr").textContent = /[01OIL]/.test(v.slice(3)) ? "제품키에는 0, 1, O, I, L 이 없어요. 다시 확인해 주세요." : "제품키 형식이 맞지 않아요. AS- 뒤에 6-4-4-4 자리예요."; return; }
+  const pid = m[1], secret = m[2] + m[3] + m[4];
+  $("keySubmit").disabled = true; $("keySubmit").textContent = "확인 중…";
+  login(pid, secret).then(r => {
+    if(r.status === 200){
+      const p = {pid, secret, name:r.body.name || "Air-Sync"};
+      useProduct(p); save("airsync.product", p); $("keyInput").value = "";
+      hideGate(); fillSettings(); connect(); go("home"); toast((p.name || "제품") + " 등록 완료");
+    } else if(r.status === 401) $("keyErr").textContent = "등록되지 않은 제품키예요. 다시 확인해 주세요.";
+    else if(r.status === 429) $("keyErr").textContent = r.body.error || "너무 많이 틀렸어요. 10분 뒤에 다시 해 주세요.";
+    else $("keyErr").textContent = "서버 오류예요. 잠시 뒤 다시 해 주세요.";
+  }).catch(() => { showGate("server"); })
+    .finally(() => { $("keySubmit").disabled = false; $("keySubmit").textContent = "제품 등록"; });
+};
+// ---------------- 설치형 앱 (PWA) ----------------
+let installEvt = null;
+const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const isAndroid = /android/i.test(navigator.userAgent);
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; updateInstallUI(); });
+window.addEventListener("appinstalled", () => { installEvt = null; updateInstallUI(); toast("앱으로 설치했어요. 홈 화면의 Air-Sync 아이콘으로 열어 주세요"); });
+function updateInstallUI(){
+  const inst = isStandalone();
+  $("installState").textContent = inst ? "설치된 앱으로 실행 중이에요." :
+    isIOS ? "아이폰은 Safari에서 홈 화면에 추가하면 앱처럼 설치돼요. 설치한 앱에서 제품키를 한 번 더 넣어 주세요." :
+    installEvt ? "버튼을 누르면 휴대폰에 앱으로 설치돼요." :
+    "Chrome 메뉴에서 앱으로 설치할 수 있어요.";
+  $("btnInstall").hidden = inst || !installEvt;
+  $("installIos").hidden = inst || !isIOS;
+  $("installAndroid").hidden = inst || isIOS || !!installEvt;
+  $("gateInstall").hidden = inst || !(installEvt || isIOS);
+}
+function doInstall(){
+  if(installEvt){ installEvt.prompt(); installEvt.userChoice.finally(() => { installEvt = null; updateInstallUI(); }); }
+  else if(isIOS) $("gateIos").hidden = !$("gateIos").hidden;
+}
+$("btnInstall").onclick = doInstall;
+$("gateInstall").onclick = doInstall;
+if("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+updateInstallUI();
+
+// 숨은 데모: 시작 화면 로고를 5번 연속 누르기
+let logoTaps = 0, logoTimer;
+$("gateLogo").addEventListener("click", () => {
+  logoTaps++; clearTimeout(logoTimer); logoTimer = setTimeout(() => logoTaps = 0, 1500);
+  if(logoTaps >= 5){ logoTaps = 0; hideGate(); startDemo(); go("home"); }
+});
 $("connPill").onclick = () => { go("settings"); $("connDetails").open = true; };
 
 // ---------------- 데모 모드 ----------------
 // 창문 보드 펌웨어(AirSync_window v2)의 판단 순서를 그대로 옮긴 가짜 보드
 function startDemo(){
-  disconnect(); resetData(); demo = true; setPill("demo","데모"); $("connBanner").hidden = true;
+  disconnect(); resetData(); demo = true; setPill("demo","데모"); $("connBanner").hidden = true; fillSettings();
   S.status = {indoor:"online", outdoor:"online", window:"online"};
   const TXT = {START:"시작", FAULT_TIMEOUT:"모터 오류: 시간 안에 끝까지 가지 못함", FAULT_SWITCH:"끝 스위치 이상: 2개가 동시에 눌림",
     USER_STOP:"사용자 정지", RAIN:"비 감지", INDOOR_INVALID:"실내 센서 이상", OUTDOOR_INVALID:"실외 통신 끊김",
@@ -946,8 +1156,6 @@ function startDemo(){
   B.tick = 0; decide(); publishState();
   updateRangeUI(); toast("데모 실행 중 · 가짜 데이터 (판단은 실제 보드와 같은 규칙)");
 }
-$("btnDemo").onclick = () => { startDemo(); go("home"); };
-$("demoBtn").onclick = () => startDemo();
 
 // ---------------- 탭 ----------------
 const VIEWS = ["home","history","settings"];
@@ -973,8 +1181,9 @@ setInterval(render, 1000);
 setInterval(() => { if(S.range > 0 && !$("view-history").hidden && !document.hidden) loadHistory(S.range); }, 60000);
 const startView = (location.hash || "").replace("#","");
 if(VIEWS.includes(startView)) go(startView);
-if(new URLSearchParams(location.search).has("demo") || location.hash==="#demo") startDemo();
-else connect();
+startPing();
+if(new URLSearchParams(location.search).has("demo") || location.hash==="#demo"){ hideGate(); startDemo(); }
+else boot();
 })();
 </script>
 </body>
