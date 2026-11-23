@@ -465,7 +465,7 @@ details[open] summary{margin-bottom:12px}
           <label class="check"><input type="checkbox" id="c-rainCloseInManual">자동 운전이 꺼져 있어도 비 오면 닫기</label>
           <p class="grp">모터 · 실제 창문으로 재고 맞춰 주세요</p>
           <div class="two">
-            <div class="field"><label for="c-motorTimeoutSec">도착 제한 시간</label><div class="with-unit"><input type="number" id="c-motorTimeoutSec" inputmode="decimal" step="0.5" min="1" max="60"><em>초</em></div><small>실제 걸린 시간 × 1.5 · 넘으면 오류로 멈춰요</small></div>
+            <div class="field"><label for="c-motorTimeoutSec">모터 도는 시간</label><div class="with-unit"><input type="number" id="c-motorTimeoutSec" inputmode="decimal" step="0.5" min="1" max="60"><em>초</em></div><small>이 시간이 지나면 끝에 도착한 걸로 보고 멈춰요 (끝 스위치가 먼저 눌리면 바로 멈춤)</small></div>
             <div class="field"><label for="c-motorDuty">모터 속도</label><div class="with-unit"><input type="number" id="c-motorDuty" inputmode="numeric" step="5" min="60" max="255"><em>/ 255</em></div><small id="dutyHint">60~255 · 클수록 빨라요</small></div>
           </div>
           <div class="two"><button type="button" class="btn" id="cfgReset">기본값 채우기</button><button type="button" class="btn main" id="cfgSave">보드에 저장</button></div>
@@ -866,7 +866,7 @@ function cfgError(c){
   if(!r(c.rainDrySec,0,3600)) return ["rainDrySec","비 그친 뒤 시간은 0~3600초로 넣어 주세요"];
   if(!r(c.staleSec,10,600)) return ["staleSec","센서 끊김 시간은 10~600초로 넣어 주세요"];
   if(!r(c.stopHoldMin,0,240)) return ["stopHoldMin","정지 유지 시간은 0~240분으로 넣어 주세요"];
-  if(!r(c.motorTimeoutSec,1,60)) return ["motorTimeoutSec","도착 제한 시간은 1~60초로 넣어 주세요"];
+  if(!r(c.motorTimeoutSec,1,60)) return ["motorTimeoutSec","모터 도는 시간은 1~60초로 넣어 주세요"];
   if(!r(c.motorDuty,60,255)) return ["motorDuty","모터 속도는 60~255로 넣어 주세요 (너무 작으면 모터가 돌지 않아요)"];
   return null;
 }
@@ -1066,7 +1066,7 @@ $("connPill").onclick = () => { go("settings"); $("connDetails").open = true; };
 function startDemo(){
   disconnect(); resetData(); demo = true; setPill("demo","데모"); $("connBanner").hidden = true; fillSettings();
   S.status = {indoor:"online", outdoor:"online", window:"online"};
-  const TXT = {START:"시작", FAULT_TIMEOUT:"모터 오류: 시간 안에 끝까지 가지 못함", FAULT_SWITCH:"끝 스위치 이상: 2개가 동시에 눌림",
+  const TXT = {START:"시작", FAULT_TIMEOUT:"모터 걸림: 출발한 자리에서 움직이지 않음", FAULT_SWITCH:"끝 스위치 이상: 2개가 동시에 눌림",
     USER_STOP:"사용자 정지", RAIN:"비 감지", INDOOR_INVALID:"실내 센서 이상", OUTDOOR_INVALID:"실외 통신 끊김",
     OUTSIDE_PM25:"실외 초미세먼지 나쁨", OUTSIDE_PM10:"실외 미세먼지 나쁨", OUTSIDE_TEMP:"실외 온도 범위 초과", TEMP_DIFF:"실내외 온도 차이 큼",
     MANUAL:"수동 운전 중", MANUAL_OPEN:"앱 명령: 열기", MANUAL_CLOSE:"앱 명령: 닫기", NO_DEMAND:"환기 필요 없음", VENT_DONE:"환기 완료",
@@ -1144,7 +1144,7 @@ function startDemo(){
   }
   function physics(dtMs){
     if(B.dir && !B.fault){ B.x = Math.max(0, Math.min(1, B.x + B.dir*dtMs/moveMs())); B.moveT = (B.moveT||0) + dtMs;
-      if(B.moveT > (S.cfg.motorTimeoutSec || 5)*1000 && B.x > 0 && B.x < 1){ B.dir = 0; B.fault = "timeout"; B.pos = "error"; say("FAULT_TIMEOUT"); return; }
+      if(B.moveT > (S.cfg.motorTimeoutSec || 5)*1000 && B.x > 0 && B.x < 1){ B.pos = B.dir > 0 ? "open" : "closed"; B.x = B.dir > 0 ? 1 : 0; B.dir = 0; return; }
       if(B.dir>0 && B.x>=1){ B.dir = 0; B.pos = "open"; } if(B.dir<0 && B.x<=0){ B.dir = 0; B.pos = "closed"; } }
   }
   let lastPub = "";

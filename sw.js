@@ -1,5 +1,5 @@
 // Air-Sync 앱 오프라인 캐시: 앱 화면은 바로 뜨게, 데이터(/api, /mqtt)는 항상 서버에서
-const CACHE = "airsync-v5";
+const CACHE = "airsync-v6";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png", "./download.html",
   "https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"];
 self.addEventListener("install", e => {
