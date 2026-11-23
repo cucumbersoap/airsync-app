@@ -386,6 +386,11 @@ details[open] summary{margin-bottom:12px}
           <div class="field"><label for="c-staleSec">센서 값이 이 시간 넘게 안 오면 센서 이상</label><div class="with-unit"><input type="number" id="c-staleSec" inputmode="numeric"><em>초</em></div><small>보드는 5초마다 값을 보내요</small></div>
           <div class="field"><label for="c-stopHoldMin">정지 버튼 후 이 시간 동안은 비가 와도 그대로</label><div class="with-unit"><input type="number" id="c-stopHoldMin" inputmode="numeric"><em>분</em></div><small>지나면 비가 올 때 닫혀요</small></div>
           <label class="check"><input type="checkbox" id="c-rainCloseInManual">자동 운전이 꺼져 있어도 비 오면 닫기</label>
+          <p class="grp">모터 · 실제 창문으로 재고 맞춰 주세요</p>
+          <div class="two">
+            <div class="field"><label for="c-motorTimeoutSec">도착 제한 시간</label><div class="with-unit"><input type="number" id="c-motorTimeoutSec" inputmode="decimal" step="0.5" min="1" max="60"><em>초</em></div><small>실제 걸린 시간 × 1.5 · 넘으면 오류로 멈춰요</small></div>
+            <div class="field"><label for="c-motorDuty">모터 속도</label><div class="with-unit"><input type="number" id="c-motorDuty" inputmode="numeric" step="5" min="60" max="255"><em>/ 255</em></div><small id="dutyHint">60~255 · 클수록 빨라요</small></div>
+          </div>
           <div class="two"><button type="button" class="btn" id="cfgReset">기본값 채우기</button><button type="button" class="btn main" id="cfgSave">보드에 저장</button></div>
         </div>
       </details>
@@ -415,8 +420,8 @@ const $ = id => document.getElementById(id);
 
 // ---------------- 기본 설정 ----------------
 const DEFAULTS = {url:"wss://broker.hivemq.com:8884/mqtt", base:"airsync/cucumbersoap", user:"", pass:""};
-const CFG_DEFAULT = {outPm25Max:35,outPm10Max:80,tempMin:5,tempMax:32,maxTempDiff:12,inPm25Open:35,pmDiffOpen:10,inPm25Close:20,pmDiffClose:3,vocOpen:200,vocClose:120,openStableSec:20,minIntervalSec:60,rainDrySec:300,staleSec:30,stopHoldMin:10,rainCloseInManual:true};
-const INT_KEYS = ["openStableSec","minIntervalSec","rainDrySec","staleSec","stopHoldMin"];
+const CFG_DEFAULT = {outPm25Max:35,outPm10Max:80,tempMin:5,tempMax:32,maxTempDiff:12,inPm25Open:35,pmDiffOpen:10,inPm25Close:20,pmDiffClose:3,vocOpen:200,vocClose:120,openStableSec:20,minIntervalSec:60,rainDrySec:300,staleSec:30,stopHoldMin:10,rainCloseInManual:true,motorTimeoutSec:5,motorDuty:160};
+const INT_KEYS = ["openStableSec","minIntervalSec","rainDrySec","staleSec","stopHoldMin","motorDuty"];
 const STALE = 60;            // 초: 이보다 오래된 값은 "오래됨"
 const PENDING_MS = 6000;     // 버튼을 누른 뒤 보드 응답을 기다리는 시간
 
@@ -757,7 +762,10 @@ $("modeSwitch").onclick = () => {
 
 // ---------------- 자동 규칙 ----------------
 const CFG_KEYS = Object.keys(CFG_DEFAULT).filter(k => k !== "rainCloseInManual");
-function fillCfg(){ CFG_KEYS.forEach(k => { if($("c-"+k)) $("c-"+k).value = S.cfg[k] ?? CFG_DEFAULT[k]; }); $("c-rainCloseInManual").checked = S.cfg.rainCloseInManual !== false; }
+function fillCfg(){ CFG_KEYS.forEach(k => { if($("c-"+k)) $("c-"+k).value = S.cfg[k] ?? CFG_DEFAULT[k]; }); $("c-rainCloseInManual").checked = S.cfg.rainCloseInManual !== false; dutyHint(); }
+function dutyHint(){ const v = parseFloat($("c-motorDuty").value);
+  $("dutyHint").textContent = isFinite(v) && v >= 60 && v <= 255 ? `약 ${Math.round(v/255*100)}% · 클수록 빨라요` : "60~255 · 클수록 빨라요"; }
+$("c-motorDuty").addEventListener("input", dutyHint);
 $("cfgReset").onclick = () => { S.cfg = Object.assign({}, CFG_DEFAULT); fillCfg(); toast("기본값을 채웠어요. 저장을 눌러야 보드에 반영돼요"); };
 // 보드의 checkSettings 와 같은 검사
 function cfgError(c){
@@ -774,6 +782,8 @@ function cfgError(c){
   if(!r(c.rainDrySec,0,3600)) return ["rainDrySec","비 그친 뒤 시간은 0~3600초로 넣어 주세요"];
   if(!r(c.staleSec,10,600)) return ["staleSec","센서 끊김 시간은 10~600초로 넣어 주세요"];
   if(!r(c.stopHoldMin,0,240)) return ["stopHoldMin","정지 유지 시간은 0~240분으로 넣어 주세요"];
+  if(!r(c.motorTimeoutSec,1,60)) return ["motorTimeoutSec","도착 제한 시간은 1~60초로 넣어 주세요"];
+  if(!r(c.motorDuty,60,255)) return ["motorDuty","모터 속도는 60~255로 넣어 주세요 (너무 작으면 모터가 돌지 않아요)"];
   return null;
 }
 $("cfgSave").onclick = () => {
@@ -850,12 +860,12 @@ function startDemo(){
     WAIT_DRY:"비 그친 뒤 대기 중", WAIT_INTERVAL:"재개방 대기 중", WAIT_STABLE:"개방 조건 확인 중", VENT_PM:"실내 미세먼지 높음, 환기", VENT_VOC:"실내 VOC 높음, 환기"};
   const B = {x:0, dir:0, pos:"closed", auto:true, stop:false, stopAt:0, fault:"", why:"START", waitEnd:0,
              pm:false, voc:false, cand:false, candAt:0, lastClose:0, lastWet:0, inp:null, out:null};
-  const MOVE_MS = 3000;
+  const moveMs = () => 3000 * 160 / (S.cfg.motorDuty || 160);   // 데모 창문: 속도 160이면 끝까지 3초
   const now = () => Date.now();
   const say = (w, end) => { B.why = w; B.waitEnd = end || 0; };
   const ack = (id, cmd, ok, code, msg) => handle("window/ack", JSON.stringify({id, cmd, ok, code, msg}));
   const move = (dir, w) => { say(w); if(B.fault) return; if(dir>0 && B.x>=1){ B.dir=0; B.pos="open"; return; } if(dir<0 && B.x<=0){ B.dir=0; B.pos="closed"; return; }
-    if(B.dir===dir) return; B.dir = dir; B.pos = dir>0 ? "opening" : "closing"; if(dir<0) B.lastClose = now(); };
+    if(B.dir===dir) return; B.dir = dir; B.moveT = 0; B.pos = dir>0 ? "opening" : "closing"; if(dir<0) B.lastClose = now(); };
   const openish = () => !(B.pos==="closed" || B.pos==="closing");
   const block = stay => { const c = S.cfg, o = B.out, i = B.inp, m = stay ? [0,0,0] : [5,10,1];
     if(o.pm25 > c.outPm25Max - m[0]) return "OUTSIDE_PM25"; if(o.pm10 > c.outPm10Max - m[1]) return "OUTSIDE_PM10";
@@ -920,7 +930,8 @@ function startDemo(){
     B.lastRain = rain;
   }
   function physics(dtMs){
-    if(B.dir && !B.fault){ B.x = Math.max(0, Math.min(1, B.x + B.dir*dtMs/MOVE_MS));
+    if(B.dir && !B.fault){ B.x = Math.max(0, Math.min(1, B.x + B.dir*dtMs/moveMs())); B.moveT = (B.moveT||0) + dtMs;
+      if(B.moveT > (S.cfg.motorTimeoutSec || 5)*1000 && B.x > 0 && B.x < 1){ B.dir = 0; B.fault = "timeout"; B.pos = "error"; say("FAULT_TIMEOUT"); return; }
       if(B.dir>0 && B.x>=1){ B.dir = 0; B.pos = "open"; } if(B.dir<0 && B.x<=0){ B.dir = 0; B.pos = "closed"; } }
   }
   let lastPub = "";
