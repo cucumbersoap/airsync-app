@@ -522,7 +522,7 @@ details[open] summary{margin-bottom:12px}
           <p class="grp">시간 · 열 때만 기다리고, 보호 목적으로 닫을 때는 바로 닫아요</p>
           <div class="field"><label for="c-openStableSec">열기 조건이 이 시간 동안 계속되면 열기</label><div class="with-unit"><input type="number" id="c-openStableSec" inputmode="numeric"><em>초</em></div></div>
           <div class="field"><label for="c-minIntervalSec">닫힌 뒤 다시 자동으로 열기까지</label><div class="with-unit"><input type="number" id="c-minIntervalSec" inputmode="numeric"><em>초</em></div></div>
-          <div class="field"><label for="c-rainDrySec">비가 그친 뒤 이 시간 동안 말라 있어야 열기</label><div class="with-unit"><input type="number" id="c-rainDrySec" inputmode="numeric"><em>초</em></div><small>300초 = 5분</small></div>
+          <div class="field"><label for="c-rainDrySec">비가 그친 뒤 이 시간 동안 말라 있어야 열기</label><div class="with-unit"><input type="number" id="c-rainDrySec" inputmode="numeric"><em>초</em></div><small>평소 600초(10분) · 촬영할 땐 30초</small></div>
           <div class="field"><label for="c-staleSec">센서 값이 이 시간 넘게 안 오면 센서 이상</label><div class="with-unit"><input type="number" id="c-staleSec" inputmode="numeric"><em>초</em></div><small>보드는 5초마다 값을 보내요</small></div>
           <div class="field"><label for="c-stopHoldMin">정지 버튼 후 이 시간 동안은 비가 와도 그대로</label><div class="with-unit"><input type="number" id="c-stopHoldMin" inputmode="numeric"><em>분</em></div><small>지나면 비가 올 때 닫혀요</small></div>
           <label class="check"><input type="checkbox" id="c-rainCloseInManual">자동 운전이 꺼져 있어도 비 오면 닫기</label>
@@ -531,7 +531,10 @@ details[open] summary{margin-bottom:12px}
             <div class="field"><label for="c-motorTimeoutSec">모터 도는 시간</label><div class="with-unit"><input type="number" id="c-motorTimeoutSec" inputmode="decimal" step="0.5" min="1" max="60"><em>초</em></div><small>이 시간이 지나면 끝에 도착한 걸로 보고 멈춰요 (끝 스위치가 먼저 눌리면 바로 멈춤)</small></div>
             <div class="field"><label for="c-motorDuty">모터 속도</label><div class="with-unit"><input type="number" id="c-motorDuty" inputmode="numeric" step="5" min="60" max="255"><em>/ 255</em></div><small id="dutyHint">60~255 · 클수록 빨라요</small></div>
           </div>
-          <div class="two"><button type="button" class="btn" id="cfgReset">기본값 채우기</button><button type="button" class="btn main" id="cfgSave">보드에 저장</button></div>
+          <p class="grp">추천 값 · 모터 값은 그대로 두고 나머지를 채워요</p>
+          <div class="two"><button type="button" class="btn" id="presetDaily">평소용 값 채우기</button><button type="button" class="btn" id="presetFilm">촬영용 값 채우기</button></div>
+          <small style="font-size:11.5px;color:var(--sub);margin-top:-6px">촬영용은 평소용과 같고 시간만 짧아요 (열기 유지 5초 · 재개방 10초 · 비 그친 뒤 30초). 촬영이 끝나면 평소용으로 돌려놓으세요.</small>
+          <button type="button" class="btn main" id="cfgSave">보드에 저장</button>
         </div>
       </details>
     </section>
@@ -595,7 +598,7 @@ const SERVER_HOST = "15-164-131-52.sslip.io";
 const API = "https://" + SERVER_HOST + "/api";
 const BROKER = "wss://" + SERVER_HOST + "/mqtt";
 const KEY_RE = /^AS-([A-Z2-9]{6})-([A-Z2-9]{4})-([A-Z2-9]{4})-([A-Z2-9]{4})$/;
-const CFG_DEFAULT = {outPm25Max:35,outPm10Max:80,tempMin:5,tempMax:32,maxTempDiff:12,inPm25Open:35,pmDiffOpen:10,inPm25Close:20,pmDiffClose:3,vocOpen:200,vocClose:120,openStableSec:20,minIntervalSec:60,rainDrySec:300,staleSec:30,stopHoldMin:10,rainCloseInManual:true,motorTimeoutSec:5,motorDuty:160,
+const CFG_DEFAULT = {outPm25Max:35,outPm10Max:80,tempMin:5,tempMax:32,maxTempDiff:10,inPm25Open:35,pmDiffOpen:10,inPm25Close:20,pmDiffClose:3,vocOpen:200,vocClose:120,openStableSec:20,minIntervalSec:60,rainDrySec:600,staleSec:30,stopHoldMin:10,rainCloseInManual:true,motorTimeoutSec:5,motorDuty:160,
   tempVent:true,tempHot:27,coolDiff:2,tempComfort:25,ecoMode:false,comfortMin:20,comfortMax:26};
 const BOOL_KEYS = ["rainCloseInManual","tempVent","ecoMode"];
 const INT_KEYS = ["openStableSec","minIntervalSec","rainDrySec","staleSec","stopHoldMin","motorDuty"];
@@ -1129,7 +1132,19 @@ function fillCfg(){ CFG_KEYS.forEach(k => { if($("c-"+k)) $("c-"+k).value = S.cf
 function dutyHint(){ const v = parseFloat($("c-motorDuty").value);
   $("dutyHint").textContent = isFinite(v) && v >= 60 && v <= 255 ? `약 ${Math.round(v/255*100)}% · 클수록 빨라요` : "60~255 · 클수록 빨라요"; }
 $("c-motorDuty").addEventListener("input", dutyHint);
-$("cfgReset").onclick = () => { S.cfg = Object.assign({}, CFG_DEFAULT); fillCfg(); toast("기본값을 채웠어요. 저장을 눌러야 보드에 반영돼요"); };
+// 추천 값: 평소용 = 기본값, 촬영용 = 기본값 + 짧은 대기 시간. 모터 값(실제로 잰 값)과 에너지 절약 모드 켜짐/꺼짐은 그대로 둠
+const PRESET_FILM = {openStableSec:5, minIntervalSec:10, rainDrySec:30};
+function applyPreset(extra, name){
+  const keep = {motorTimeoutSec: parseFloat($("c-motorTimeoutSec").value), motorDuty: parseFloat($("c-motorDuty").value), ecoMode: $("c-ecoMode").checked};
+  S.cfg = Object.assign({}, CFG_DEFAULT, extra);
+  if(isFinite(keep.motorTimeoutSec)) S.cfg.motorTimeoutSec = keep.motorTimeoutSec;
+  if(isFinite(keep.motorDuty)) S.cfg.motorDuty = keep.motorDuty;
+  S.cfg.ecoMode = keep.ecoMode;
+  fillCfg(); toast(name + " 값을 채웠어요. '보드에 저장'을 눌러야 반영돼요");
+  $("cfgSave").scrollIntoView({behavior:"smooth", block:"center"});
+}
+$("presetDaily").onclick = () => applyPreset({}, "평소용");
+$("presetFilm").onclick = () => applyPreset(PRESET_FILM, "촬영용");
 // 보드의 checkSettings 와 같은 검사
 function cfgError(c){
   const r = (v,lo,hi) => typeof v === "number" && isFinite(v) && v >= lo && v <= hi;
