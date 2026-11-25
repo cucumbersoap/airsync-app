@@ -1078,14 +1078,14 @@ async function renderPush(){
     hint.textContent = isIOS && !isStandalone() ? "아이폰은 홈 화면에 추가한 앱에서 켤 수 있어요 (iOS 16.4 이상)" : "이 브라우저는 알림을 지원하지 않아요"; $("btnPushTest").hidden = true; return; }
   if(Notification.permission === "denied"){ sw.disabled = true; sw.setAttribute("aria-checked", false); hint.textContent = "알림이 차단돼 있어요. 휴대폰 설정에서 Air-Sync 알림을 허용해 주세요"; $("btnPushTest").hidden = true; return; }
   let sub = null; try{ sub = await pushSub(); }catch(e){}
-  const on = !!sub && Notification.permission === "granted" && load("airsync.push", "") === (product && product.pid);
+  const on = !!sub && Notification.permission !== "denied" && load("airsync.push", "") === (product && product.pid);   // 설치형 앱에서는 permission 값이 늦게 바뀔 수 있어 실제 등록 여부로 판단
   sw.disabled = !product && !demo; sw.setAttribute("aria-checked", demo ? Notification.permission === "granted" : on);
   hint.textContent = demo ? "데모에서는 이 휴대폰 안에서만 알림을 보여 줘요" : on ? "켜짐 · 창문이 열리거나 닫히면 알려 드려요" : "창문이 열리거나 닫히면 알려 드려요";
   $("btnPushTest").hidden = !on || demo;
 }
 async function pushOn(){
-  const perm = await Notification.requestPermission();
-  if(perm !== "granted"){ toast("알림을 허용해야 받을 수 있어요"); return renderPush(); }
+  const perm = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
+  if(perm === "denied"){ toast("알림이 차단돼 있어요. 휴대폰 설정에서 Air-Sync 알림을 허용해 주세요"); return renderPush(); }
   const k = await fetch(API + "/push/key", {cache:"no-store"}).then(r => r.json());
   if(!k.key) throw new Error(k.error || "서버 알림 키 없음");
   const reg = await navigator.serviceWorker.ready;
@@ -1110,7 +1110,7 @@ $("pushSwitch").onclick = async () => {
 $("btnPushTest").onclick = () => apiPost("/push/test", {}).then(j => toast(j.sent ? "테스트 알림을 보냈어요" : "등록된 휴대폰이 없어요")).catch(e => toast("실패: " + e.message));
 // 연결될 때마다 이 휴대폰의 알림 등록을 서버에 다시 알려 줌 (서버를 새로 만든 경우 대비)
 async function pushRefresh(){
-  try{ if(!pushSupported() || demo || !product || Notification.permission !== "granted" || load("airsync.push","") !== product.pid) return renderPush();
+  try{ if(!pushSupported() || demo || !product || Notification.permission === "denied" || load("airsync.push","") !== product.pid) return renderPush();
     const sub = await pushSub(); if(sub) await apiPost("/push/subscribe", sub.toJSON()); }catch(e){}
   renderPush();
 }
